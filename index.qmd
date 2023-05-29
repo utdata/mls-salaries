@@ -1,0 +1,6 @@
+---
+title: "MLS Salaries"
+format: html
+---
+
+- I might want to look at [this research](https://static1.squarespace.com/static/5b141b4a2714e53264a3db7d/t/5b14224703ce643a99571d4a/1528046159698/Goldberg_MLS_Salaries.pdf) from 2017.

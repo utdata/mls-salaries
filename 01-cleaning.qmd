@@ -1,0 +1,386 @@
+---
+title: "Cleaning"
+format: html
+---
+
+## Goals of this notebook
+
+Our data all comes from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide) but it was published in different formats throughout the years.
+
+- We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
+  + It's interesting for 2017 the PDF DIP has is different than what I downloaded in that DIP has the pool MLS players but mine does not.
+- Then our 2018 to 2021 data is converted from PDF using [Tablula](https://tabula.technology/) into CSVs, but this data will need headers, etc.
+- Then out 2022 and 2023 data comes as Excel files.
+
+Once all the data is imported, we'll still need to do some normalization: - All columns will need the same datatype, etc. - We'll want to normalize team names. Sometimes team initials are used, and other times full names are used. I'd like to have both. I'll probably build something in Google Sheets. - I'd like to add conference affiliations. I'll likely have to build this and might only do for recent years.
+
+## Setup
+
+```{r}
+#| label: setup
+#| warning: false
+library(tidyverse)
+library(readxl)
+library(janitor)
+```
+
+## Import the archive data
+
+This brings in the Data is Plural files, which should all be the same.
+
+```{r}
+#| label: dip-import
+
+dip_data <- read_csv(c(
+  "data-processed/data-is-plural/mls-salaries-2007.csv",
+  "data-processed/data-is-plural/mls-salaries-2008.csv",
+  "data-processed/data-is-plural/mls-salaries-2009.csv",
+  "data-processed/data-is-plural/mls-salaries-2010.csv",
+  "data-processed/data-is-plural/mls-salaries-2011.csv",
+  "data-processed/data-is-plural/mls-salaries-2012.csv",
+  "data-processed/data-is-plural/mls-salaries-2013.csv",
+  "data-processed/data-is-plural/mls-salaries-2014.csv",
+  "data-processed/data-is-plural/mls-salaries-2015.csv",
+  "data-processed/data-is-plural/mls-salaries-2016.csv",
+  "data-processed/data-is-plural/mls-salaries-2017.csv"),
+  id = "file_name"
+) |> 
+  mutate(
+    year = str_sub(file_name, 44, 47)
+  ) |> 
+  relocate(year) |> # moving year to front
+  select(!file_name) |>  # dropping file_name
+  rename(club_short = club)
+
+dip_data |> head()
+```
+
+### Cleaning clubs
+
+There are times when club abbreviations vary. We will fix those here.
+
+Checking them:
+
+```{r}
+dip_data |> 
+  count(club_short)
+```
+
+Looking through this, I want to make a number of changes.
+
+- TOR changed to TFC
+- NY to NYRB since that's what is used after NYCFC arrived
+- None changed to NA
+- Pool changed to Major League Soccer
+- POOL changed to Major League Soccer
+
+This makes the changes.
+
+```{r}
+dip_changed <- dip_data |> 
+  mutate(
+    club_short_clean = recode(
+      club_short,
+      "TOR" = "TFC",
+      "NY" = "NYRB",
+      "None" = NULL,
+      "POOL" = "MLS",
+      "Pool" = "MLS"
+    )
+  )
+```
+
+
+Checking the changes to make sure they are right.
+
+```{r}
+dip_changed |> 
+  count(club_short, club_short_clean)
+```
+
+Now we'll clean up the columns.
+
+```{r}
+dip_cleaned <- dip_changed |> 
+  select(!club_short) |> 
+  rename(club_short = club_short_clean) |> 
+  relocate(year, club_short)
+
+dip_cleaned |> head()  
+```
+
+## Cleaning Tabula conversions
+
+Each of these files from years 2018 to 2021 will have different issues.
+
+I'm adding the year col as a number
+
+### 2018 salaries
+
+For this one, the dollar signs came in as their own column, which was actually helpful so the numbers were actually numbers. I also need to add the year.
+
+```{r}
+#| label: import-2018
+
+s2018_imported <- read_csv(
+  "data-raw/tabula-2018-09-15-Salary-Information-Alphabetical.csv",
+  col_names = c(
+    "club_long",
+    "last_name",
+    "first_name",
+    "position",
+    "currency_1",
+    "base_salary",
+    "currency_2",
+    "guaranteed_compensation"
+  )
+) |> 
+  select(!starts_with("currency")) |> # removes dollar signs
+  add_column(year = "2018", .before = "club_long")
+
+s2018_imported
+```
+
+### 2019 salaries
+
+For this one, our salaries come in with `$` in the salary fields, and also with a trailing space and `)`. We import those a "raw" versions and clean them before using `type_convert()` to have dplyr try to type them again, changing them to numberic. For some reason I couldn't just convert to `as.numeric()` even after it was cleaned up as they came up NA. I also add the year.
+
+```{r}
+#| label: import-2019
+s2019_imported <- read_csv(
+  "data-raw/tabula-2019-Salary-List-Fall-Release-FINAL-Salary-List-Fall-Release-MLS.csv",
+  col_names = c(
+    "club_long",
+    "last_name",
+    "first_name",
+    "position",
+    "base_salary_raw",
+    "guaranteed_compensation_raw"
+  )
+) |> 
+  mutate(
+    base_salary = str_remove_all(base_salary_raw, "[\\)\\$]") |> str_trim(),
+    guaranteed_compensation = str_remove_all(guaranteed_compensation_raw, "[\\)\\$]") |> str_trim()
+  ) |> 
+  type_convert() |> 
+  select(!ends_with("raw")) |> 
+  add_column(year = "2019", .before = "club_long")
+
+
+s2019_imported |> head()
+```
+
+### 2020 salaries
+
+```{r}
+s2020_imported <- read_csv(
+  "data-raw/tabula-2020-Fall-Winter-Salary-List-alphabetical.csv",
+  col_names = c(
+    "last_name",
+    "first_name",
+    "club_long",
+    "position",
+    "base_salary_raw",
+    "guaranteed_compensation_raw"
+  )
+) |> 
+  mutate(
+    base_salary = str_remove(base_salary_raw, "\\$"),
+    guaranteed_compensation = str_remove(guaranteed_compensation_raw, "\\$"),
+  ) |> 
+  select(!ends_with("raw")) |> 
+  type_convert() |> 
+  add_column(year = "2020", .before = "last_name")
+
+s2020_imported |> head()
+```
+
+### 2021 salaries
+
+```{r}
+s2021_imported <- read_csv(
+  "data-raw/tabula-2021-MLSPA-Fall-Salary-release (1).csv",
+  col_names = c(
+    "club_long",
+    "last_name",
+    "first_name",
+    "position",
+    "base_salary_raw",
+    "guaranteed_compensation_raw"
+  )
+) |> 
+  mutate(
+    base_salary = str_remove(base_salary_raw, "\\$"),
+    guaranteed_compensation = str_remove(guaranteed_compensation_raw, "\\$"),
+  ) |> 
+  select(!ends_with("raw")) |> 
+  type_convert() |> 
+  add_column(year = "2021", .before = "club_long")
+
+s2021_imported |> head()
+```
+
+## Import excel data
+
+### 2022 data
+
+```{r}
+s2022_imported <- read_excel("data-raw/MLS Salary 2022.xlsx") |> clean_names() |> 
+  add_column(year = "2022", .before = "first_name") |> 
+  rename(position = position_s,
+         club_long = club)
+
+s2022_imported |> glimpse()
+```
+
+### 2023 data
+
+```{r}
+s2023_imported <- read_excel("data-raw/MLS Salary 2023.xlsx") |> clean_names() |> 
+  add_column(year = "2023", .before = "first_name") |> 
+  rename(position = position_s,
+         club_long = club)
+
+s2023_imported |> glimpse()
+```
+
+## Merge non-dip data
+
+The tabula and excel data both use long club names, so I'll put those together.
+
+```{r}
+non_dip_data <- s2018_imported |> 
+  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported)
+
+non_dip_data |> glimpse()
+```
+
+## Cleaning non-dip data
+
+Checking the names for errors.
+
+```{r}
+non_dip_data |> 
+  count(club_long)
+```
+
+Some things of note:
+
+- 2021 New England Revolution may be missing last `n`.
+- Montreal should probably be CF Montreal
+
+Let's make the changes
+
+```{r}
+non_dip_changed <- non_dip_data |> 
+  mutate(
+    club_long_changed = recode(
+      club_long,
+      "Montreal" = "CF Montreal",
+      "New England Revolutio" = "New England Revolution",
+      "DC United" = "D.C. United",
+      "Vancouver Whitecaps" = "Vancouver Whitecaps FC",
+      "Minnesota United" = "Minnesota United FC"
+    )
+  )
+
+non_dip_changed  |> 
+  count(club_long_changed, club_long)
+```
+
+Now we'll fix up the columns.
+
+```{r}
+non_dip_cleaned <- non_dip_changed |> 
+  select(-club_long) |> 
+  rename(club_long = club_long_changed) |> 
+  relocate(year, club_long)
+
+non_dip_cleaned |> glimpse()
+```
+
+## Building both names
+
+I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind. My plan is this:
+
+- Get a list of all the short names
+- Get a list of all the long names
+- Add them both to a Google Sheet and match them manually
+- Download that sheet and then use joins to fill gaps
+
+I used the following to get the names, though just to copy into a spreadsheet for a lot of manual research and work.
+
+```{r}
+clubs_short <- dip_cleaned |> distinct(year, club_short) |> 
+  arrange(year, club_short)
+
+# clubs_short |> clipr::write_clip()
+```
+
+
+Let's get the long names:
+
+```{r}
+clubs_long <- non_dip_data |> distinct(year, club_long) |> 
+  arrange(year, club_long)
+
+# clubs_long |> clipr::write_clip()
+```
+
+### Pulling in the spreadsheet
+
+Download the clubs list. Commented out after saved locally.
+
+```{r}
+# download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv", "data-processed/clubs-list.csv")
+
+clubs_list <- read_csv("data-processed/clubs-list.csv") |> 
+  mutate(year = as.character(year))
+
+clubs_list |> 
+  count(club_short, club_long)
+```
+
+#### Fill in our dip
+
+dip data doesn't have club_long. We'll join with our master clubs list to get them.
+
+```{r}
+dip_full <- dip_cleaned |> 
+  left_join(clubs_list, join_by(year == year, club_short == club_short))
+
+dip_full |> 
+  filter(is.na(club_long))
+```
+
+#### Fill in non-dip
+
+```{r}
+non_dip_full <- non_dip_cleaned |> 
+  left_join(clubs_list, join_by(year == year, club_long == club_long))
+
+non_dip_full |> 
+  filter(is.na(club_short))
+```
+
+## Merge it all together
+
+```{r}
+mls_salaries <- dip_full |> 
+  bind_rows(non_dip_full) |> 
+  select(
+    year,
+    club_short,
+    last_name,
+    first_name,
+    position,
+    base_salary,
+    guaranteed_compensation,
+    club_long,
+    conference
+  )
+
+mls_salaries |> glimpse()
+```
+
+## Export the cleaned data

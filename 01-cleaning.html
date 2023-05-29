@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Cleaning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="01-cleaning_files/libs/clipboard/clipboard.min.js"></script>
+<script src="01-cleaning_files/libs/quarto-html/quarto.js"></script>
+<script src="01-cleaning_files/libs/quarto-html/popper.min.js"></script>
+<script src="01-cleaning_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="01-cleaning_files/libs/quarto-html/anchor.min.js"></script>
+<link href="01-cleaning_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="01-cleaning_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="01-cleaning_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="01-cleaning_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="01-cleaning_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cleaning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="goals-of-this-notebook" class="level2">
+<h2 class="anchored" data-anchor-id="goals-of-this-notebook">Goals of this notebook</h2>
+<p>Our data all comes from the <a href="https://mlsplayers.org/resources/salary-guide">MLS Players Association</a> but it was published in different formats throughout the years.</p>
+<ul>
+<li>We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: <a href="https://github.com/data-is-plural/mls-salaries">Github archive</a>. It goes from 2007 to 2017.
+<ul>
+<li>It’s interesting for 2017 the PDF DIP has is different than what I downloaded in that DIP has the pool MLS players but mine does not.</li>
+</ul></li>
+<li>Then our 2018 to 2021 data is converted from PDF using <a href="https://tabula.technology/">Tablula</a> into CSVs, but this data will need headers, etc.</li>
+<li>Then out 2022 and 2023 data comes as Excel files.</li>
+</ul>
+<p>Once all the data is imported, we’ll still need to do some normalization: - All columns will need the same datatype, etc. - We’ll want to normalize team names. Sometimes team initials are used, and other times full names are used. I’d like to have both. I’ll probably build something in Google Sheets. - I’d like to add conference affiliations. I’ll likely have to build this and might only do for recent years.</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="import-the-archive-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-the-archive-data">Import the archive data</h2>
+<p>This brings in the Data is Plural files, which should all be the same.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dip_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">c</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2007.csv"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2008.csv"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2009.csv"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2010.csv"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2011.csv"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2012.csv"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2013.csv"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2014.csv"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2015.csv"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2016.csv"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2017.csv"</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="st">"file_name"</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">str_sub</span>(file_name, <span class="dv">44</span>, <span class="dv">47</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year) <span class="sc">|&gt;</span> <span class="co"># moving year to front</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>file_name) <span class="sc">|&gt;</span>  <span class="co"># dropping file_name</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_short =</span> club)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 5553 Columns: 7
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (4): club, last_name, first_name, position
+dbl (2): base_salary, guaranteed_compensation
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dip_data <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  year  club_short last_name first_name position base_salary
+  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 2007  CHI        Armas     Chris      M            225000 
+2 2007  CHI        Banner    Michael    M             12900 
+3 2007  CHI        Barrett   Chad       F             41212.
+4 2007  CHI        Blanco    Cuauhtemoc F           2492316 
+5 2007  CHI        Brown     C.J.       D            106391 
+6 2007  CHI        Busch     Jon        GK            58008 
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<section id="cleaning-clubs" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-clubs">Cleaning clubs</h3>
+<p>There are times when club abbreviations vary. We will fix those here.</p>
+<p>Checking them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 2
+   club_short     n
+   &lt;chr&gt;      &lt;int&gt;
+ 1 ATL           34
+ 2 CHI          306
+ 3 CHV          233
+ 4 CLB          311
+ 5 COL          308
+ 6 DAL          322
+ 7 DC           309
+ 8 HOU          293
+ 9 KC           304
+10 LA           315
+# ℹ 20 more rows</code></pre>
+</div>
+</div>
+<p>Looking through this, I want to make a number of changes.</p>
+<ul>
+<li>TOR changed to TFC</li>
+<li>NY to NYRB since that’s what is used after NYCFC arrived</li>
+<li>None changed to NA</li>
+<li>Pool changed to Major League Soccer</li>
+<li>POOL changed to Major League Soccer</li>
+</ul>
+<p>This makes the changes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dip_changed <span class="ot">&lt;-</span> dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">club_short_clean =</span> <span class="fu">recode</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      club_short,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"TOR"</span> <span class="ot">=</span> <span class="st">"TFC"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"NY"</span> <span class="ot">=</span> <span class="st">"NYRB"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"None"</span> <span class="ot">=</span> <span class="cn">NULL</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"POOL"</span> <span class="ot">=</span> <span class="st">"MLS"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Pool"</span> <span class="ot">=</span> <span class="st">"MLS"</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Checking the changes to make sure they are right.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short, club_short_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 30 × 3
+   club_short club_short_clean     n
+   &lt;chr&gt;      &lt;chr&gt;            &lt;int&gt;
+ 1 ATL        ATL                 34
+ 2 CHI        CHI                306
+ 3 CHV        CHV                233
+ 4 CLB        CLB                311
+ 5 COL        COL                308
+ 6 DAL        DAL                322
+ 7 DC         DC                 309
+ 8 HOU        HOU                293
+ 9 KC         KC                 304
+10 LA         LA                 315
+# ℹ 20 more rows</code></pre>
+</div>
+</div>
+<p>Now we’ll clean up the columns.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dip_cleaned <span class="ot">&lt;-</span> dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>club_short) <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_short =</span> club_short_clean) <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year, club_short)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>dip_cleaned <span class="sc">|&gt;</span> <span class="fu">head</span>()  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  year  club_short last_name first_name position base_salary
+  &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 2007  CHI        Armas     Chris      M            225000 
+2 2007  CHI        Banner    Michael    M             12900 
+3 2007  CHI        Barrett   Chad       F             41212.
+4 2007  CHI        Blanco    Cuauhtemoc F           2492316 
+5 2007  CHI        Brown     C.J.       D            106391 
+6 2007  CHI        Busch     Jon        GK            58008 
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="cleaning-tabula-conversions" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-tabula-conversions">Cleaning Tabula conversions</h2>
+<p>Each of these files from years 2018 to 2021 will have different issues.</p>
+<p>I’m adding the year col as a number</p>
+<section id="salaries" class="level3">
+<h3 class="anchored" data-anchor-id="salaries">2018 salaries</h3>
+<p>For this one, the dollar signs came in as their own column, which was actually helpful so the numbers were actually numbers. I also need to add the year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>s2018_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2018-09-15-Salary-Information-Alphabetical.csv"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"currency_1"</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"currency_2"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation"</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">starts_with</span>(<span class="st">"currency"</span>)) <span class="sc">|&gt;</span> <span class="co"># removes dollar signs</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2018"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 694 Columns: 8
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, currency_1, currency_2
+num (2): base_salary, guaranteed_compensation
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>s2018_imported</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 694 × 7
+   year  club_long          last_name    first_name position base_salary
+   &lt;chr&gt; &lt;chr&gt;              &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+ 1 2018  New York Red Bulls Abang        Anatole    F             68927 
+ 2 2018  New York City FC   Abdul-Salaam Saad       D            106480 
+ 3 2018  Columbus Crew      Abu          Mohammed   M            175008 
+ 4 2018  Columbus Crew      Abubakar     Lalas      D             68250.
+ 5 2018  Philadelphia Union Accam        David      F-M         1250000.
+ 6 2018  Colorado Rapids    Acosta       Kellyn     M            280000 
+ 7 2018  DC United          Acosta       Luciano    F-M          550000 
+ 8 2018  Real Salt Lake     Acosta       Danilo     M            100000 
+ 9 2018  Chicago Fire       Adams        Mohammed   M             90000 
+10 2018  New York Red Bulls Adams        Tyler      M            100000 
+# ℹ 684 more rows
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="salaries-1" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-1">2019 salaries</h3>
+<p>For this one, our salaries come in with <code>$</code> in the salary fields, and also with a trailing space and <code>)</code>. We import those a “raw” versions and clean them before using <code>type_convert()</code> to have dplyr try to type them again, changing them to numberic. For some reason I couldn’t just convert to <code>as.numeric()</code> even after it was cleaned up as they came up NA. I also add the year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>s2019_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2019-Salary-List-Fall-Release-FINAL-Salary-List-Fall-Release-MLS.csv"</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove_all</span>(base_salary_raw, <span class="st">"[</span><span class="sc">\\</span><span class="st">)</span><span class="sc">\\</span><span class="st">$]"</span>) <span class="sc">|&gt;</span> <span class="fu">str_trim</span>(),</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove_all</span>(guaranteed_compensation_raw, <span class="st">"[</span><span class="sc">\\</span><span class="st">)</span><span class="sc">\\</span><span class="st">$]"</span>) <span class="sc">|&gt;</span> <span class="fu">str_trim</span>()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2019"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 714 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  club_long = col_character(),
+  last_name = col_character(),
+  first_name = col_character(),
+  position = col_character(),
+  base_salary_raw = col_character(),
+  guaranteed_compensation_raw = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>s2019_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  year  club_long           last_name    first_name position base_salary
+  &lt;chr&gt; &lt;chr&gt;               &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+1 2019  Philadelphia Union  Aaronson     Brenden    M-F           70000.
+2 2019  Seattle Sounders FC Abdul-Salaam Saad       D             70250.
+3 2019  Colorado Rapids     Abubakar     Lalas      D            135000 
+4 2019  Columbus Crew       Accam        David      M-F         1010004 
+5 2019  Colorado Rapids     Acosta       Kellyn     D-M          550000.
+6 2019  DC United           Acosta       Luciano    M-F          600000 
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="salaries-2" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-2">2020 salaries</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>s2020_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2020-Fall-Winter-Salary-List-alphabetical.csv"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove</span>(base_salary_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove</span>(guaranteed_compensation_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2020"</span>, <span class="at">.before =</span> <span class="st">"last_name"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 778 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): last_name, first_name, club_long, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  last_name = col_character(),
+  first_name = col_character(),
+  club_long = col_character(),
+  position = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>s2020_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  year  last_name    first_name club_long          position base_salary
+  &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt;      &lt;chr&gt;              &lt;chr&gt;          &lt;dbl&gt;
+1 2020  Aaronson     Brenden    Philadelphia Union M              85000
+2 2020  Abdul-Salaam Saad       FC Cincinnati      D              81375
+3 2020  Abu          Mohammed   DC United          M              81375
+4 2020  Abubakar     Lalas      Colorado Rapids    D             145000
+5 2020  Accam        David      Nashville SC       F             875000
+6 2020  Acevedo      Nicolas    New York City FC   D-M           135000
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="salaries-3" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-3">2021 salaries</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>s2021_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2021-MLSPA-Fall-Salary-release (1).csv"</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove</span>(base_salary_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove</span>(guaranteed_compensation_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2021"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 871 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  club_long = col_character(),
+  last_name = col_character(),
+  first_name = col_character(),
+  position = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>s2021_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+  year  club_long      last_name first_name        position base_salary
+  &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;             &lt;chr&gt;          &lt;dbl&gt;
+1 2021  Atlanta United Adams     "Mohammed \"Mo\"" M             121000
+2 2021  Atlanta United Ambrose   "Mikey"           D              81375
+3 2021  Atlanta United Araujo    "Luiz"            F-M          3600000
+4 2021  Atlanta United Barco     "Ezequiel"        M            1875000
+5 2021  Atlanta United Bauer     "Josh"            D              63547
+6 2021  Atlanta United Bello     "George"          D             135000
+# ℹ 1 more variable: guaranteed_compensation &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="import-excel-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-excel-data">Import excel data</h2>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">2022 data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>s2022_imported <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data-raw/MLS Salary 2022.xlsx"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2022"</span>, <span class="at">.before =</span> <span class="st">"first_name"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">position =</span> position_s,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">club_long =</span> club)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>s2022_imported <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 841
+Columns: 7
+$ year                    &lt;chr&gt; "2022", "2022", "2022", "2022", "2022", "2022"…
+$ first_name              &lt;chr&gt; "Artur", "Nanú", "Zeca", "Luquinhas", "Judson"…
+$ last_name               &lt;chr&gt; NA, NA, NA, NA, NA, NA, "Ågren", "Aaronson", "…
+$ club_long               &lt;chr&gt; "Columbus Crew", "FC Dallas", "Houston Dynamo"…
+$ position                &lt;chr&gt; "M", "D", "D", "F", "M", "D", "D", "M", "D", "…
+$ base_salary             &lt;dbl&gt; 564000, 600000, 218182, 1050000, 420000, 40000…
+$ guaranteed_compensation &lt;dbl&gt; 615633, 668750, 259015, 1173125, 425000, 42875…</code></pre>
+</div>
+</div>
+</section>
+<section id="data-1" class="level3">
+<h3 class="anchored" data-anchor-id="data-1">2023 data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>s2023_imported <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data-raw/MLS Salary 2023.xlsx"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2023"</span>, <span class="at">.before =</span> <span class="st">"first_name"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">position =</span> position_s,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">club_long =</span> club)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>s2023_imported <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 872
+Columns: 7
+$ year                    &lt;chr&gt; "2023", "2023", "2023", "2023", "2023", "2023"…
+$ first_name              &lt;chr&gt; "Amro Tarek", "Luis", "Lalas", "Nicolás", "Alo…
+$ last_name               &lt;chr&gt; "Abdel-Aziz", "Abram", "Abubakar", "Acevedo", …
+$ club_long               &lt;chr&gt; "Austin FC", "Atlanta United", "Colorado Rapid…
+$ position                &lt;chr&gt; "D", "D", "D", "D", "D", "F", "M", "D", "M", "…
+$ base_salary             &lt;dbl&gt; 249996, 556364, 665000, 230000, 330000, 85444,…
+$ guaranteed_compensation &lt;dbl&gt; 249996, 695977, 702125, 274800, 368900, 85444,…</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="merge-non-dip-data" class="level2">
+<h2 class="anchored" data-anchor-id="merge-non-dip-data">Merge non-dip data</h2>
+<p>The tabula and excel data both use long club names, so I’ll put those together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="ot">&lt;-</span> s2018_imported <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,770
+Columns: 7
+$ year                    &lt;chr&gt; "2018", "2018", "2018", "2018", "2018", "2018"…
+$ club_long               &lt;chr&gt; "New York Red Bulls", "New York City FC", "Col…
+$ last_name               &lt;chr&gt; "Abang", "Abdul-Salaam", "Abu", "Abubakar", "A…
+$ first_name              &lt;chr&gt; "Anatole", "Saad", "Mohammed", "Lalas", "David…
+$ position                &lt;chr&gt; "F", "D", "M", "D", "F-M", "M", "F-M", "M", "M…
+$ base_salary             &lt;dbl&gt; 68927.00, 106480.00, 175008.00, 68250.04, 1250…
+$ guaranteed_compensation &lt;dbl&gt; 68927.00, 120230.00, 181258.00, 75750.04, 1250…</code></pre>
+</div>
+</div>
+</section>
+<section id="cleaning-non-dip-data" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-non-dip-data">Cleaning non-dip data</h2>
+<p>Checking the names for errors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 34 × 2
+   club_long           n
+   &lt;chr&gt;           &lt;int&gt;
+ 1 Atlanta United    195
+ 2 Austin FC          92
+ 3 Charlotte FC       67
+ 4 Chicago Fire      175
+ 5 Colorado Rapids   185
+ 6 Columbus Crew     173
+ 7 DC United         174
+ 8 FC Cincinnati     154
+ 9 FC Dallas         187
+10 Houston Dynamo    184
+# ℹ 24 more rows</code></pre>
+</div>
+</div>
+<p>Some things of note:</p>
+<ul>
+<li>2021 New England Revolution may be missing last <code>n</code>.</li>
+<li>Montreal should probably be CF Montreal</li>
+</ul>
+<p>Let’s make the changes</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>non_dip_changed <span class="ot">&lt;-</span> non_dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">club_long_changed =</span> <span class="fu">recode</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>      club_long,</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Montreal"</span> <span class="ot">=</span> <span class="st">"CF Montreal"</span>,</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"New England Revolutio"</span> <span class="ot">=</span> <span class="st">"New England Revolution"</span>,</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"DC United"</span> <span class="ot">=</span> <span class="st">"D.C. United"</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>non_dip_changed  <span class="sc">|&gt;</span> </span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_long_changed, club_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 34 × 3
+   club_long_changed club_long           n
+   &lt;chr&gt;             &lt;chr&gt;           &lt;int&gt;
+ 1 Atlanta United    Atlanta United    195
+ 2 Austin FC         Austin FC          92
+ 3 CF Montreal       Montreal           98
+ 4 Charlotte FC      Charlotte FC       67
+ 5 Chicago Fire      Chicago Fire      175
+ 6 Colorado Rapids   Colorado Rapids   185
+ 7 Columbus Crew     Columbus Crew     173
+ 8 D.C. United       DC United         174
+ 9 FC Cincinnati     FC Cincinnati     154
+10 FC Dallas         FC Dallas         187
+# ℹ 24 more rows</code></pre>
+</div>
+</div>
+<p>Now we’ll fix up the columns.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>non_dip_cleaned <span class="ot">&lt;-</span> non_dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>club_long) <span class="sc">|&gt;</span> </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_long =</span> club_long_changed) <span class="sc">|&gt;</span> </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year, club_long)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>non_dip_cleaned <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,770
+Columns: 7
+$ year                    &lt;chr&gt; "2018", "2018", "2018", "2018", "2018", "2018"…
+$ club_long               &lt;chr&gt; "New York Red Bulls", "New York City FC", "Col…
+$ last_name               &lt;chr&gt; "Abang", "Abdul-Salaam", "Abu", "Abubakar", "A…
+$ first_name              &lt;chr&gt; "Anatole", "Saad", "Mohammed", "Lalas", "David…
+$ position                &lt;chr&gt; "F", "D", "M", "D", "F-M", "M", "F-M", "M", "M…
+$ base_salary             &lt;dbl&gt; 68927.00, 106480.00, 175008.00, 68250.04, 1250…
+$ guaranteed_compensation &lt;dbl&gt; 68927.00, 120230.00, 181258.00, 75750.04, 1250…</code></pre>
+</div>
+</div>
+</section>
+<section id="building-both-names" class="level2">
+<h2 class="anchored" data-anchor-id="building-both-names">Building both names</h2>
+<p>I’d like to have <code>club_long</code> and <code>club_short</code> for each row of data, but to do that I need to build a conversion chart of some kind. My plan is this:</p>
+<ul>
+<li>Get a list of all the short names</li>
+<li>Get a list of all the long names</li>
+<li>Add them both to a Google Sheet and match them manually</li>
+<li>Download that sheet and then use joins to fill gaps</li>
+</ul>
+<p>I used the following to get the names, though just to copy into a spreadsheet for a lot of manual research and work.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>clubs_short <span class="ot">&lt;-</span> dip_cleaned <span class="sc">|&gt;</span> <span class="fu">distinct</span>(year, club_short) <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, club_short)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co"># clubs_short |&gt; clipr::write_clip()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s get the long names:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>clubs_long <span class="ot">&lt;-</span> non_dip_data <span class="sc">|&gt;</span> <span class="fu">distinct</span>(year, club_long) <span class="sc">|&gt;</span> </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, club_long)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="co"># clubs_long |&gt; clipr::write_clip()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="pulling-in-the-spreadsheet" class="level3">
+<h3 class="anchored" data-anchor-id="pulling-in-the-spreadsheet">Pulling in the spreadsheet</h3>
+<p>Download the clubs list:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>clubs_list <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.character</span>(year))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 379 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (3): club_short, club_long, conference
+dbl (1): year
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>clubs_list <span class="sc">|&gt;</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short, club_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 34 × 3
+   club_short club_long           n
+   &lt;chr&gt;      &lt;chr&gt;           &lt;int&gt;
+ 1 ATL        Atlanta United      8
+ 2 AUS        Austin FC           4
+ 3 CCH        Charlotte FC        3
+ 4 CHI        Chicago Fire       17
+ 5 CHV        Chivas USA          8
+ 6 CIN        FC Cincinnati       6
+ 7 CLB        Columbus Crew      17
+ 8 COL        Colorado Rapids    17
+ 9 DAL        FC Dallas          17
+10 DC         D.C. United        17
+# ℹ 24 more rows</code></pre>
+</div>
+</div>
+<section id="fill-in-our-dip" class="level4">
+<h4 class="anchored" data-anchor-id="fill-in-our-dip">Fill in our dip</h4>
+<p>dip data doesn’t have club_long. We’ll join with our master clubs list to get them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>dip_full <span class="ot">&lt;-</span> dip_cleaned <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(clubs_list, <span class="fu">join_by</span>(year <span class="sc">==</span> year, club_short <span class="sc">==</span> club_short))</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>dip_full <span class="sc">|&gt;</span> </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(club_long))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 23 × 9
+   year  club_short last_name   first_name position base_salary
+   &lt;chr&gt; &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt;
+ 1 2010  &lt;NA&gt;       Goldthwaite Kevin      D             120000
+ 2 2010  &lt;NA&gt;       Waibel      Craig      D              84710
+ 3 2010  &lt;NA&gt;       Wolyniec    John       F              88000
+ 4 2012  &lt;NA&gt;       Sassano     Luke       M-D            81000
+ 5 2012  &lt;NA&gt;       White       Jeremiah   M              44004
+ 6 2013  &lt;NA&gt;       Araujo Jr.  Paulo      F              60000
+ 7 2013  &lt;NA&gt;       Dunfield    Terry      M             120000
+ 8 2013  &lt;NA&gt;       Muniz       Nico       M              46500
+ 9 2014  &lt;NA&gt;       Borja       Carlos     D              52313
+10 2014  &lt;NA&gt;       Gardner     Joshua     M              70000
+# ℹ 13 more rows
+# ℹ 3 more variables: guaranteed_compensation &lt;dbl&gt;, club_long &lt;chr&gt;,
+#   conference &lt;chr&gt;</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
