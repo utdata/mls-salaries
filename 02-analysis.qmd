@@ -1,0 +1,231 @@
+---
+title: "Analysis 2023"
+---
+
+## Goals of this notebook
+
+We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
+
+- Which teams have the highest salary bill this year?
+- Which players are getting paid the most this year?
+- How does that compare historically?
+- Who do team salary rankings compare over time?
+
+[Per the MLS Player's Association](https://mlsplayers.org/resources/salary-guide), "compensation" is: The Annual Average Guaranteed Compensation (Guaranteed Comp) number includes a player's base salary and all signing and guaranteed bonuses annualized over the term of the player's contract, including option years.
+
+## Setup
+
+```{r}
+#| label: setup
+#| echo: true
+#| results: hide
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(janitor)
+library(scales)
+library(ggrepel)
+library(DT)
+```
+
+
+## Import
+
+Getting the cleaned data.
+
+```{r}
+salaries <- read_rds("data-processed/mls-salaries.rds")
+
+salaries |> glimpse()
+```
+
+### Setting the most recent year of data
+
+I'm creating an object called `salaries_new` because at some point I'll have new data and might want to just change the year.
+
+```{r}
+recent_year <- "2023"
+```
+
+
+## Players with highest salaries
+
+For all player, all time. This is based on compensation. Printing search able table.
+
+```{r}
+sal_high <- salaries |> 
+  arrange(compensation |> desc()) |> 
+  select(!c(club_long, conference))
+
+# top of list
+sal_high |> 
+  filter(compensation >= 7000000)
+```
+
+For the most recent year. Again just the top of the list.
+
+```{r}
+sal_high |> 
+  filter(year == recent_year) |> 
+  filter(compensation >= 4000000)
+```
+
+For 2023, it looks like Austin FC's Sebastián Driussi is the 6th highest payer, and Houston's Hector Herrera is the 7th highest-paid player.
+
+### Difference with just base pay in 2023?
+
+```{r}
+sal_high_base <- salaries |> 
+  arrange(base_salary |> desc()) |> 
+  select(!c(club_long, conference, compensation))
+
+sal_high_base |> filter(year == recent_year, base_salary >= 2000000) 
+```
+
+
+## Team salaries
+
+We'll get per-year salaries by team, then look at just this year.
+
+```{r}
+sal_team <- salaries |> 
+  group_by(year, club_long) |> 
+  summarise(total_compensation = sum(compensation)) |> 
+  arrange(total_compensation |> desc())
+
+# peek at the top
+sal_team |> head(10)
+```
+
+And let's look at this year
+
+```{r}
+sal_team_recent <- sal_team |> filter(year == recent_year)
+
+# peek
+sal_team_recent |> head(10)
+```
+
+Let's chart this
+
+```{r}
+#| label: fig-2023-team-salary
+#| fig-height: 8
+#| fig-cap: "MLS team salaries"
+#| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Toronto FC tops the list at XXX."
+
+
+sal_team_recent |> 
+  filter(club_long != "Major League Soccer") |> 
+  ggplot(mapping = aes(
+    x = total_compensation,
+    y = club_long |> reorder(total_compensation)
+  )) +
+  geom_bar(stat='identity') +
+  geom_text(aes(
+    label = dollar(total_compensation, scale = .00001, accuracy = 2, digits = 3)),
+    color = "white", hjust = 1.25
+  ) +
+  scale_x_continuous(labels = label_dollar(scale = .00001, accuracy = 2)) +
+  labs(
+    x = "Total team spending in $ millions",
+    y = "",
+    title = "2023 MLS Team Salaries",
+    subtitle = str_wrap("Salaries includes each player's base salary\
+                        plus all signing and guaranteed bonuses annualized\
+                        over the term of the player's contract, including option years.")
+  ) +
+  theme_minimal()
+```
+
+## Team spending over time
+
+Let's look at team spending over the past five years. To do this, we have to create a ranking for the spending.
+
+- I'm removing players not affiliated with times
+- When I added a third column to the group because I wanted to use long names for something, the ranking broke. I had to break the group then use the `.by` argument for `rank()`.
+
+
+```{r}
+sal_team_rank <- salaries |> 
+  filter(club_short != "MLS" | club_short |> is.na()) |> 
+  group_by(year, club_short, club_long) |> 
+  summarise(
+    total_comp = sum(compensation, na.rm = TRUE)
+  ) |> 
+  arrange(year, total_comp |> desc()) |> 
+  ungroup() |>
+  mutate(rank = rank(-total_comp), .by = year)
+
+# peek
+sal_team_rank |> head(20)
+```
+
+Visualizing all of them would be tricky. Let's do the top five over last five years. Some other trickyness:
+
+
+```{r}
+sal_team_rank_top <- sal_team_rank |> 
+  filter(rank <= 5,
+         year >= "2019")
+
+sal_team_rank_top
+```
+
+Peek at this a different way
+
+```{r}
+sal_team_rank_top |> 
+  select(-total_comp) |> 
+  pivot_wider(names_from = year, values_from = rank)
+```
+
+### Let's visualze spending rank
+
+I want to use a list of team-specific colors. I'm trying this manually first, based on the results of the chart. The colors were pulled [from here](https://teamcolorcodes.com/soccer/mls-team-color-codes/), though I wish I could instead join with a data package and pull from the team colors.
+
+```{r}
+#| label: club_colors
+
+club_color_list <- c(
+  "#80000A", # ATL
+  "#00B140", # AUS
+  "#7CCDEF", # CHI
+  "#FEDD00", # CLB
+  "#EF3E42", # DC
+  "#00245D", # LA
+  "#C39E6D", # LAFC
+  "#F7B5CD", # MIA
+  "#CE0E2D", # NE
+  "#5D9741", # SEA
+  "#B81137"  # TFC
+)
+```
+
+
+And now the chart
+
+```{r}
+#| label: chart_rank_t5
+
+sal_team_rank_top |> 
+  # filter()
+  ggplot(aes(x=year, y=rank, group = club_short)) +
+  geom_line(aes(color = club_short)) +
+  geom_point(aes(color = club_short, size = 3)) +
+  geom_label_repel(aes(label = club_short), size = 3) +
+  scale_y_reverse() +
+  scale_colour_manual(values = club_color_list) +
+  scale_size_continuous(guide = "none") +
+  labs(
+    title = "MLS Spending Rank",
+    subtitle = "The top five spending clubs over the past five years, by rank.",
+    color = "Club",
+    x = NULL,
+    y = "Spending Rank"
+  ) +
+  theme_minimal()
+```
+
+

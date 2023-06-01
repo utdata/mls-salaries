@@ -4,19 +4,28 @@ title: "Data conversion"
 
 ## About this notebook
 
-The goal here is to convert a number of PDF tables to data. Some packages we'll explore:
+::: callout-warning
+Not really using this notebook
+:::
+
+
+The goal here is to convert all the PDF-based salary tables to data. Some packages we'll explore:
 
 - [pdftools](https://docs.ropensci.org/pdftools/)
 - [tabulizer](https://docs.ropensci.org/tabulizer/)
 
 The data was downloaded from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide)
 
-I have not been able to install tabluizer. I've also found some of the historical data from Data is Plural, so I'm going to us other methods.
+I have not been able to install tabulizer. I've also found some of the historical data from Data is Plural, so I'm going to us other methods.
 
 ## Setup
 
 ```{r}
 #| label: setup
+#| echo: true
+#| results: hide
+#| message: false
+#| warning: false
 
 library(tidyverse)
 library(pdftools)

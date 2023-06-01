@@ -1,5 +1,25 @@
 project:
   title: "rwd-mls-salaries"
+  type: website
+  output-dir: docs
+
+df-print: paged
+
+website:
+  title: "MLS Salaries"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - 01-cleaning.qmd
+      - 02-analysis.qmd
+      - explore-api.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    # toc: true
 
 
 
