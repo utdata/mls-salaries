@@ -8,19 +8,20 @@ format: html
 Our data all comes from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide) but it was published in different formats throughout the years.
 
 - We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
-  + It's interesting that the DIP PDF for 2017 is different than what I downloaded from the MLSPA site. It appears to have pool MLS players but mine does not.
+  + It's interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.
 - I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a litte different.
-- The 2022 and 2023 data comes as Excel files.
+- The 2022 and 2023 data comes as Excel files. They also need cleaning.
 
 Once all the data was imported, I still needed to do some normalization:
 
 - All columns needed the same datatype, etc.
 - We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted [usfootballr](https://usfootballr.sportsdataverse.org/index.html) for how names and abbreviations were used in hopes of joining with data from that package.
-- I wanted add conference affiliations, which I did manually in the Google Sheet reference.
+- I wanted to add conference affiliations, which I did manually in the Google Sheet reference.
 
 ### Things to do
 
-- I need to double-check all the conference designations.
+- I need to double-check all the conference designations before I actually use them.
+- I might add color values to the Google Sheet reference since all the packages I've checked have been out of date.
 
 ## Setup
 
@@ -64,10 +65,11 @@ dip_data <- read_csv(c(
   select(!file_name) |>  # dropping file_name
   rename(club_short = club)
 
+# peek
 dip_data |> head()
 ```
 
-### Cleaning clubs
+### Cleaning club abbeviations
 
 There are times when club abbreviations vary. We fix those here.
 
@@ -78,15 +80,8 @@ dip_data |>
   count(club_short)
 ```
 
-Looking through this, I want to make a number of changes.
+Looking through this, I want to make a number of changes. I also ended up checking the usfootballR package for how they do abbreviations. Using SKC for historical data since it was the same club that changed names
 
-- TOR changed to TFC
-- NY to NYRB since that's what is used after NYCFC arrived
-- None changed to NA
-- Pool changed to Major League Soccer
-- POOL changed to Major League Soccer
-
-This makes the changes.
 
 ```{r}
 dip_changed <- dip_data |> 
@@ -105,7 +100,6 @@ dip_changed <- dip_data |>
   )
 ```
 
-
 Checking the changes to make sure they are right.
 
 ```{r}
@@ -113,7 +107,7 @@ dip_changed |>
   count(club_short, club_short_clean)
 ```
 
-Now we'll clean up the columns.
+### Cleaning column names for DIP files
 
 ```{r}
 dip_cleaned <- dip_changed |> 
@@ -127,8 +121,6 @@ dip_cleaned |> head()
 ## Cleaning Tabula conversions
 
 Each of these files from years 2018 to 2021 will have different issues.
-
-I'm adding the year col as a number
 
 ### 2018 salaries
 
@@ -153,7 +145,7 @@ s2018_imported <- read_csv(
   select(!starts_with("currency")) |> # removes dollar signs
   add_column(year = "2018", .before = "club_long")
 
-s2018_imported
+s2018_imported |> head()
 ```
 
 ### 2019 salaries
@@ -180,7 +172,6 @@ s2019_imported <- read_csv(
   type_convert() |> 
   select(!ends_with("raw")) |> 
   add_column(year = "2019", .before = "club_long")
-
 
 s2019_imported |> head()
 ```
@@ -270,7 +261,7 @@ non_dip_data <- s2018_imported |>
 non_dip_data |> glimpse()
 ```
 
-## Cleaning non-dip data
+## Cleaning long names in non-dip data
 
 Checking the names for errors.
 
@@ -282,9 +273,9 @@ non_dip_data |>
 Some things of note:
 
 - 2021 New England Revolution may be missing last `n`.
-- Montreal should probably be CF Montreal
+- Montreal should probably be CF Montréal
 
-Let's make the changes
+There are other changes as well based on usfootballR package, etc.
 
 ```{r}
 non_dip_changed <- non_dip_data |> 
@@ -334,24 +325,19 @@ clubs_short <- dip_cleaned |> distinct(year, club_short) |>
   arrange(year, club_short)
 
 # clubs_short |> clipr::write_clip()
-```
 
-
-Let's get the long names:
-
-```{r}
 clubs_long <- non_dip_data |> distinct(year, club_long) |> 
   arrange(year, club_long)
 
 # clubs_long |> clipr::write_clip()
 ```
 
-### Pulling in the spreadsheet
+### Downloading in the spreadsheet
 
-Download the clubs list. Commented out after saved locally.
+Download the clubs list. Commented out after saved locally. Then viewed club names to verify/check them.
 
 ```{r}
-download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv", "data-processed/clubs-list.csv")
+# download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv", "data-processed/clubs-list.csv")
 
 clubs_list <- read_csv("data-processed/clubs-list.csv") |> 
   mutate(year = as.character(year))
@@ -360,29 +346,44 @@ clubs_list |>
   count(club_short, club_long)
 ```
 
-#### Fill in our dip
+#### Fill in our DIP
 
-dip data doesn't have club_long. We'll join with our master clubs list to get them.
+The DIP data doesn't have club_long. We'll join with our master clubs list to get them.
 
 ```{r}
 dip_full <- dip_cleaned |> 
   left_join(clubs_list, join_by(year == year, club_short == club_short))
 
+dip_full |> head()
+```
+
+Check for those that did not get a long name to see why.
+
+```{r}
 dip_full |> 
   filter(is.na(club_long))
 ```
 
+
 #### Fill in non-dip
+
+The non-DIP data doesn't have the short name, so we join with clubs_list reference file for them.
 
 ```{r}
 non_dip_full <- non_dip_cleaned |> 
   left_join(clubs_list, join_by(year == year, club_long == club_long))
 
+non_dip_full |> head()
+```
+
+Check those that did not get a short name to research why.
+
+```{r}
 non_dip_full |> 
   filter(is.na(club_short))
 ```
 
-## Merge it all together
+## Merge all the versions together
 
 ```{r}
 mls_salaries <- dip_full |> 
@@ -401,8 +402,6 @@ mls_salaries <- dip_full |>
 
 mls_salaries |> glimpse()
 ```
-
-
 ## Export the cleaned data
 
 ```{r}

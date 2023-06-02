@@ -61,10 +61,19 @@ sal_team_rank_top <- sal_team_rank |>
 
 Here I try to use the colors from the usfootballr package and apply them to a chart.
 
+Here is what comes from the package for teams:
+
 ```{r}
 espn_teams <- espn_mls_teams()
 
-sal_top_2023 <- sal_team_rank_top |> left_join(espn_teams, join_by(club_short == abbreviation)) |> 
+espn_teams |> head()
+```
+
+Now I want to use my ranking data to try and color bars based on data from the package.
+
+
+```{r}
+sal_top_2023 <- sal_team_rank |> left_join(espn_teams, join_by(club_short == abbreviation)) |> 
   select(1:4, 11:12) |> 
   filter(year == "2023")
 
@@ -79,27 +88,31 @@ sal_top_2023_col
 Now to plot with the color?
 
 ```{r}
+#| fig-height: 10
+
 sal_top_2023_col |> 
-  ggplot(aes(x = club_short, y = total_comp)) +
-  geom_col(fill = sal_top_2023_col$alternate_color) +
-  scale_y_continuous(labels = label_dollar(scale = .00001, accuracy = 2)) +
+  ggplot(aes(x = reorder(club_short, total_comp), y = total_comp)) +
+  geom_col(color = sal_top_2023_col$color, fill = sal_top_2023_col$alternate_color) +
+  scale_y_continuous(labels = label_dollar(scale = .00001, accuracy = 2),
+                     limits = c(0, 27500000)) +
   geom_text(aes(
-    label = dollar(total_comp, scale = .00001, accuracy = 2, digits = 3)),
-    color = "white", vjust = 1.5
+    label = dollar(total_comp, scale = .00001, accuracy = 2, digits = 3), hjust = -.25)
   ) +
+  coord_flip() +
   labs(
     title = "Top five spending teams 2023",
     y = "Total spending in $ millions"
-  )
+  ) 
 
 ```
+
+While this works and they have all the current teams, the colors don't seem right. LA Galaxy are not black and white. Atlanta is Black and Gold. The main colors for DC united are red and black (white is a third color)
 
 ### From teamcolors
 
 We'll try this, but from older data because they won't have some teams.
 
 ```{r}
-
 mls_colors <- teamcolors |> filter(league == "mls") |> 
   select(1, 3:4)
 
@@ -109,22 +122,23 @@ mls_colors_udpated <- mls_colors |>
     "Chicago Fire" = "Chicago Fire FC"
   )) |> select(-name)
 
-mls_colors_udpated
-
-
 sal_team_2019 <- sal_team |> filter(year == 2019) |>
   left_join(mls_colors_udpated, join_by(club_long)) |> 
-  drop_na(primary)
+  drop_na(primary, secondary) # <1>
+
 
 sal_team_2019
 ```
 
+1. I had to drop rows that didn't have their color or this would break.
+
 ```{r}
 #| label: fig-colors-teamcolors
 #| fig-height: 7
+#| fig-cap: Incomplete team spending, 2019
 
-sal_team_2019 |> 
-  drop_na(primary) |> 
+sal_team_2019  |> 
+  # drop_na(primary, secondary) |> 
   ggplot(aes(y = club_long |> reorder(total_compensation), x = total_compensation)) +
   geom_col(fill = sal_team_2019$primary) +
   scale_x_continuous(labels = label_dollar(scale = .00001, accuracy = 2)) +
@@ -141,4 +155,4 @@ sal_team_2019 |>
 
 ```
 
-
+The colors are much nicer here, but not all the teams are represented. It is at least four years out of date.

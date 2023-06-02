@@ -6,10 +6,9 @@ title: "Analysis 2023"
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
 
-- Which teams have the highest salary bill this year?
 - Which players are getting paid the most this year?
-- How does that compare historically?
-- Who do team salary rankings compare over time?
+- Which teams have the highest salary bill this year?
+- How do team salary rankings compare over time?
 
 [Per the MLS Player's Association](https://mlsplayers.org/resources/salary-guide), "compensation" is: The Annual Average Guaranteed Compensation (Guaranteed Comp) number includes a player's base salary and all signing and guaranteed bonuses annualized over the term of the player's contract, including option years.
 
@@ -51,7 +50,7 @@ recent_year <- "2023"
 
 ## Players with highest salaries
 
-For all player, all time. This is based on compensation. Printing search able table.
+For all players, all time. This is based on compensation. Printing search able table.
 
 ```{r}
 sal_high <- salaries |> 
@@ -107,6 +106,17 @@ sal_team_recent <- sal_team |> filter(year == recent_year)
 sal_team_recent |> head(10)
 ```
 
+Let's round the numbers for our chart.
+
+```{r}
+sal_team_recent_mil <- sal_team_recent |> 
+  mutate(total_millions = (total_compensation / 1000000) |> round(1))
+
+sal_team_recent_mil
+```
+
+
+
 Let's chart this
 
 ```{r}
@@ -116,18 +126,15 @@ Let's chart this
 #| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Toronto FC tops the list at XXX."
 
 
-sal_team_recent |> 
+sal_team_recent_mil |> 
   filter(club_long != "Major League Soccer") |> 
   ggplot(mapping = aes(
-    x = total_compensation,
+    x = total_millions,
     y = club_long |> reorder(total_compensation)
   )) +
   geom_bar(stat='identity') +
-  geom_text(aes(
-    label = dollar(total_compensation, scale = .00001, accuracy = 2, digits = 3)),
-    color = "white", hjust = 1.25
-  ) +
-  scale_x_continuous(labels = label_dollar(scale = .00001, accuracy = 2)) +
+  geom_text(aes(label = paste("$", as.character(total_millions), sep = "")), color = "white", hjust = 1.25) +
+  scale_x_continuous(labels = label_dollar()) +
   labs(
     x = "Total team spending in $ millions",
     y = "",
@@ -143,7 +150,7 @@ sal_team_recent |>
 
 Let's look at team spending over the past five years. To do this, we have to create a ranking for the spending.
 
-- I'm removing players not affiliated with times
+- I'm removing players not affiliated with teams
 - When I added a third column to the group because I wanted to use long names for something, the ranking broke. I had to break the group then use the `.by` argument for `rank()`.
 
 
@@ -155,14 +162,18 @@ sal_team_rank <- salaries |>
     total_comp = sum(compensation, na.rm = TRUE)
   ) |> 
   arrange(year, total_comp |> desc()) |> 
-  ungroup() |>
-  mutate(rank = rank(-total_comp), .by = year)
+  ungroup() |> #<1>
+  mutate(rank = rank(-total_comp), .by = year) #<2>
 
 # peek
 sal_team_rank |> head(20)
 ```
 
-Visualizing all of them would be tricky. Let's do the top five over last five years. Some other trickyness:
+
+1. I break the `group_by` here.
+2. Then I set the ranking to work by year.
+
+Visualizing all of them would be tricky. Let's do the top five over last five years.
 
 
 ```{r}

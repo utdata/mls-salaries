@@ -2,6 +2,8 @@
 
 This is a collection of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats far widely. There are other challenges as well.
 
+Various notebooks are available through the site navigation.
+
 ### Things I want to learn
 
 - Players that were paid the most
