@@ -13,6 +13,7 @@ website:
         text: Home
       - 01-cleaning.qmd
       - 02-analysis.qmd
+      - 02-pts-salary.qmd
       - explore-api.qmd
 
 format:

@@ -55,7 +55,7 @@ For all players, all time. This is based on compensation. Printing search able t
 ```{r}
 sal_high <- salaries |> 
   arrange(compensation |> desc()) |> 
-  select(!c(club_long, conference))
+  select(!c(club_long, conference, base_salary))
 
 # top of list
 sal_high |> 

@@ -2,13 +2,19 @@
 
 This is a collection of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats far widely. There are other challenges as well.
 
-Various notebooks are available through the site navigation.
+Various notebooks are available through the site navigation above. The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2023](02-analysis.qmd).
+
+The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The published notebooks are on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/).
 
 ### Things I want to learn
 
 - Players that were paid the most
 - Teams that spent the most
-- Can I compare 2022 spending to final ranking? This will require more data, so I'll explore packages.
+- Top spending teams over the past several years
+
+### Future work
+
+- Can I compare club spending to season results? This will require more data, so I'll explore packages.
 
 ## Resources
 

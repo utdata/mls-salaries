@@ -1,0 +1,124 @@
+---
+title: "Points vs salaries"
+---
+
+## Goal of this notebook
+
+Does spending more on players ensure a better season? I want to compare season points to salaries spent by MLS teams.
+
+I thought I had found some [standings data on kaggle](https://www.kaggle.com/datasets/josephvm/major-league-soccer-dataset?resource=download&select=all_tables.csv), but it only goes through part of 2021.
+
+I worked it out using 2020 data, but there is nothing to really show.
+
+## Setup
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(janitor)
+options(dplyr.summarise.inform = FALSE)
+```
+
+## Importing
+
+```{r}
+#| label: import
+#| message: false
+
+mls_standings <- read_csv("data-raw/all_tables.csv") |> clean_names()
+mls_salaries <- read_rds("data-processed/mls-salaries.rds")
+```
+
+
+## Salaries
+
+Starting with salaries data since this is "cleaned" already.
+
+```{r}
+sal_20 <- mls_salaries |> 
+  filter(year == "2020") |> 
+  group_by(club_long, conference) |> 
+  summarise(team_salary = sum(compensation))
+
+sal_20
+```
+
+## Standings
+
+Checking what we have for standings data.
+
+```{r}
+mls_standings |> 
+  summarise(
+    yr_old = min(year),
+    yr_new = max(year)
+  )
+```
+
+## Trying this with 2020 anyway
+
+### Peek at the data
+
+```{r}
+std_20 <- mls_standings |> filter(year == "2020")
+```
+
+### Cleaning names
+
+There are some issues here with team names. There are notes on the names and some names are different than what is used with MLS Salaries.
+
+
+
+```{r}
+std_20_clean <- mls_standings |> 
+  filter(year == "2020", conference == "Overall") |> 
+  mutate(
+    team_clean = str_remove_all(team, regex("\\[.\\]|\\(.\\)")) |> str_trim(),
+    team_new = case_match(
+      team_clean,
+      "Columbus Crew SC" ~ "Columbus Crew",
+      "Houston Dynamo" ~ "Houston Dynamo FC",
+      "Los Angeles FC" ~ "LAFC",
+      "Vancouver Whitecaps FC" ~ "Vancouver Whitecaps",
+      .default = team_clean
+    )
+  ) |>
+  arrange(team_new) |> 
+  distinct(team_new, pts)
+
+
+std_20_clean
+```
+
+
+
+## Put them together
+
+```{r}
+combined_20 <- sal_20 |> 
+  left_join(std_20_clean, by = join_by(club_long == team_new)) |> 
+  drop_na()
+
+combined_20
+```
+
+## Plot the relationship
+
+```{r}
+ggplot(combined_20) +
+  aes(x = pts, y = team_salary) +
+  geom_point(aes(color = conference), size = 4) +
+  # geom_text(aes(label = club_long)) +
+  ggrepel::geom_text_repel(aes(label = club_long), size = 3)
+```
+
+There isn't one, really. At least not for this year. It's also difficult to read.
+
+
+
+
+
+
+
