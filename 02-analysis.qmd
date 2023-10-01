@@ -41,7 +41,7 @@ salaries |> glimpse()
 
 ### Setting the most recent year of data
 
-I'm creating an object called `salaries_new` because at some point I'll have new data and might want to just change the year.
+I'm creating an object called `recent_year` because at some point I'll have new data and might want to just change the year.
 
 ```{r}
 recent_year <- "2023"
@@ -50,27 +50,17 @@ recent_year <- "2023"
 
 ## Players with highest salaries
 
-For all players, all time. This is based on compensation. Printing search able table.
+A searchable table of all players, all time.
 
 ```{r}
 sal_high <- salaries |> 
   arrange(compensation |> desc()) |> 
-  select(!c(club_long, conference, base_salary))
+  select(!c(club_long, conference))
 
-# top of list
-sal_high |> 
-  filter(compensation >= 7000000)
+sal_high |> datatable()
 ```
 
-For the most recent year. Again just the top of the list.
-
-```{r}
-sal_high |> 
-  filter(year == recent_year) |> 
-  filter(compensation >= 4000000)
-```
-
-For 2023, it looks like Austin FC's Sebastián Driussi is the 6th highest payer, and Houston's Hector Herrera is the 7th highest-paid player.
+For 2023, it looks like Austin FC's Sebastián Driussi is the 6th highest player, and Houston's Hector Herrera is the 7th highest-paid player.
 
 ### Difference with just base pay in 2023?
 
