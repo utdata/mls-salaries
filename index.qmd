@@ -1,2 +1,41 @@
+# MLS Salaries
 
-{{< include README.md >}}
+This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats far widely. There are other cleaning challenges tackled as well.
+
+The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2023](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
+
+The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The published notebooks are on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/).
+
+### Questions to answer
+
+- Players that were paid the most over time and recently
+- Teams that spent the most over time and recently
+- Top spending teams over the past several years
+- Future consideration: Is it possible to compare club spending to season results? This will require more data and perhaps other packages.
+
+## Summary of findings
+
+### Inter Miami was already spending before Messi
+
+Upon his signing on July 2023, Lionel Messi became the highest paid player in the history of the Major League Soccer with a total compensation over \$20 million. However, investing in players was not a new concept for Inter Miami CF, as they had been among the top spending teams since 2020, according to an analysis of player salaries.
+
+The analysis was based on 2007-2023 player salary released by the [Major League Soccer Player's Association](https://mlsplayers.org/resources/salary-guide). It was not adjusted for inflation.
+
+### Other facts
+- Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed in July. They were the only players earning more than $10 million within a year.
+- In 2023, Austin FC's Sebastián Driussi was the 6th highest player in the MLS and Houston's Hector Herrera was the 7th highest-paid player. - Several teams had two top 10 earners on their rosters: Inter Miami, Toronto FC and the L.A. Galaxy.
+- Given the historic signing of Lionel Messi, it is no surprise that Inter Miami have the highest team salary for the 2023 season. Toronto ranks second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
+- Looking at the most expensive rosters in the MLS of time, Toronto FC has six of the top 10 highest player expenses.
+- Over the past 17 years, Toronto has been the top spending team seven times, or 40% of the time. The L.A. Galaxy is next with five highest-spending years.
+- Among the teams spending the most on their rosters over the past five years, only the L.A. Galaxy have ranked in the top five each year. Toronto FC and Inter Miami have been top spenders in four of the last five years.
+
+
+![](figures/team-salary-2023.png)
+
+![](figures/sal_team_rank-new.png)
+
+
+## Resources
+
+- [This research](https://static1.squarespace.com/static/5b141b4a2714e53264a3db7d/t/5b14224703ce643a99571d4a/1528046159698/Goldberg_MLS_Salaries.pdf) from 2017 may prove interesting, but I haven't done anything with it yet.
+

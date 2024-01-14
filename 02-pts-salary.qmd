@@ -4,6 +4,8 @@ title: "Points vs salaries"
 
 ## Goal of this notebook
 
+> This notebook is a work in progress. There are no particular findings at this time.
+
 Does spending more on players ensure a better season? I want to compare season points to salaries spent by MLS teams.
 
 I thought I had found some [standings data on kaggle](https://www.kaggle.com/datasets/josephvm/major-league-soccer-dataset?resource=download&select=all_tables.csv), but it only goes through part of 2021.
@@ -21,6 +23,17 @@ library(janitor)
 options(dplyr.summarise.inform = FALSE)
 ```
 
+
+## Download
+
+I scraped the [MLS 2023 standings](https://www.mlssoccer.com/standings/2023/conference#season=2023&live=true) and put them in a [Google Sheet](https://docs.google.com/spreadsheets/d/1KxUowFOoDYl-brTsBqIAgUqLnvCcPXB4fM5CQkRC1p4/edit?usp=sharing) where I hand-edited some columns to clean it up. (It was just quicker because of some non-consisten patterns in the scrapped team name.)
+
+```{r}
+download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv", "data-raw/mls-standings-2023.csv")
+```
+
+I haven't used this as of yet.
+
 ## Importing
 
 ```{r}
@@ -29,6 +42,7 @@ options(dplyr.summarise.inform = FALSE)
 
 mls_standings <- read_csv("data-raw/all_tables.csv") |> clean_names()
 mls_salaries <- read_rds("data-processed/mls-salaries.rds")
+mls_standings_2023 <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv")
 ```
 
 

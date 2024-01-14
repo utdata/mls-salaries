@@ -10,7 +10,8 @@ Our data all comes from the [MLS Players Association](https://mlsplayers.org/res
 - We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
   + It's interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.
 - I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a litte different.
-- The 2022 and 2023 data comes as Excel files. They also need cleaning.
+- The 2022 is available as an Excel file. I did need cleaning.
+- The initial version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
 
 Once all the data was imported, I still needed to do some normalization:
 
@@ -80,8 +81,7 @@ dip_data |>
   count(club_short)
 ```
 
-Looking through this, I want to make a number of changes. I also ended up checking the usfootballR package for how they do abbreviations. Using SKC for historical data since it was the same club that changed names
-
+Looking through this, I want to make a number of changes. I also ended up checking the usfootballR package for how they do abbreviations. Using SKC for historical data since it was the same club that changed names.
 
 ```{r}
 dip_changed <- dip_data |> 
@@ -241,8 +241,10 @@ s2022_imported |> glimpse()
 
 ### 2023 data
 
+The first version for 2023 was available as an Excel file. However, there was an update in September of 2023 that was available for download as a PDF (saved in data-raw) but also published as an HTML table that I was able to use a browser-based scraper to create an Excel file. It is this Excel file that I'm using.
+
 ```{r}
-s2023_imported <- read_excel("data-raw/MLS Salary 2023.xlsx") |> clean_names() |> 
+s2023_imported <- read_excel("data-raw/2023-Salary-Report-as-of-Sept-15-2023.xlsx") |> clean_names() |> 
   add_column(year = "2023", .before = "first_name") |> 
   rename(position = position_s,
          club_long = club)
@@ -311,7 +313,7 @@ non_dip_cleaned |> glimpse()
 
 ## Building both names
 
-I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind. My plan is this:
+I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind. How I tackled this:
 
 - Get a list of all the short names
 - Get a list of all the long names
@@ -333,6 +335,8 @@ clubs_long <- non_dip_data |> distinct(year, club_long) |>
 ```
 
 ### Downloading in the spreadsheet
+
+The edited Google Sheet is here: [rws-mls-salaries](https://docs.google.com/spreadsheets/d/1rH1pbOZYAv_ep4iCihzqrzOYBTreV2oJ014Un4TgEjw/edit?usp=sharing)
 
 Download the clubs list. Commented out after saved locally. Then viewed club names to verify/check them.
 
