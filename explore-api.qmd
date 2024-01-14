@@ -80,33 +80,41 @@ sal_top_2023 <- sal_team_rank |> left_join(espn_teams, join_by(club_short == abb
 sal_top_2023_col <- sal_top_2023 |> 
   mutate(color = paste("#", color, sep = ""),
          alternate_color = paste("#", alternate_color, sep = "")
-        )
+        ) |> 
+  drop_na()
 
 sal_top_2023_col
 ```
 
 Now to plot with the color?
 
-```{r}
-#| fig-height: 10
+The geom_text label I was trying below needed a decimal point and not as much rounding, but I'm not going to figure that out right now.
 
-sal_top_2023_col |> 
+```{r}
+
+sal_top_2023_col_plot <- sal_top_2023_col |> 
   ggplot(aes(x = reorder(club_short, total_comp), y = total_comp)) +
-  geom_col(color = sal_top_2023_col$color, fill = sal_top_2023_col$alternate_color) +
-  scale_y_continuous(labels = label_dollar(scale = .00001, accuracy = 2),
-                     limits = c(0, 27500000)) +
-  geom_text(aes(
-    label = dollar(total_comp, scale = .00001, accuracy = 2, digits = 3), hjust = -.25)
-  ) +
+  # geom_col(color = sal_top_2023_col$color, fill = sal_top_2023_col$alternate_color) +
+  geom_col(fill = sal_top_2023_col$color) +
+  scale_y_continuous(labels = label_dollar(scale = .000001, accuracy = 2),
+                     limits = c(0, 40000000)) +
+  # geom_text(aes(
+  #   label = dollar(total_comp, scale = .000001, accuracy = 3, digits = 2), hjust = -.25)
+  # ) +
   coord_flip() +
   labs(
     title = "Top five spending teams 2023",
-    y = "Total spending in $ millions"
+    y = "Total spending in $ millions",
+    x = ""
   ) 
 
+ggsave("figures/team-salary-2023-color.png")
 ```
 
-While this works and they have all the current teams, the colors don't seem right. LA Galaxy are not black and white. Atlanta is Black and Gold. The main colors for DC united are red and black (white is a third color)
+
+![](figures/team-salary-2023-color.png)
+
+While this works and they have all the current teams, in some cases we would want the alternative color for a team if the main color is black or white.
 
 ### From teamcolors
 
@@ -156,3 +164,4 @@ sal_team_2019  |>
 ```
 
 The colors are much nicer here, but not all the teams are represented. It is at least four years out of date.
+
