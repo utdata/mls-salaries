@@ -314,3 +314,10 @@ sal_team_rank_top |>
 
 Among the teams spending the most on their rosters over the past five years, only the L.A. Galaxy have ranked in the top five each year. Toronto FC and Inter Miami have been top spenders in four of the last five years.
 
+## Team abbrs
+
+```{r}
+# salaries |> 
+#   count(club_short) |> pull(club_short) |> clipr::write_clip()
+```
+

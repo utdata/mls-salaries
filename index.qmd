@@ -2,6 +2,8 @@
 
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
+This is updated through the 2023 season.
+
 The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2023](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
 
 The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The published notebooks are on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/).
