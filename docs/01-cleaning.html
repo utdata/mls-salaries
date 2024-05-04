@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.542">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>MLS Salaries - Cleaning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">MLS Salaries</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./01-cleaning.html" aria-current="page"> 
+<span class="menu-text">Cleaning</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./02-analysis.html"> 
+<span class="menu-text">Analysis 2023</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./02-pts-salary.html"> 
+<span class="menu-text">Points vs salaries</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./explore-api.html"> 
+<span class="menu-text">API explore</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cleaning</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="goals-of-this-notebook" class="level2">
+<h2 class="anchored" data-anchor-id="goals-of-this-notebook">Goals of this notebook</h2>
+<p>Our data all comes from the <a href="https://mlsplayers.org/resources/salary-guide">MLS Players Association</a> but it was published in different formats throughout the years.</p>
+<ul>
+<li>We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: <a href="https://github.com/data-is-plural/mls-salaries">Github archive</a>. It goes from 2007 to 2017.
+<ul>
+<li>It’s interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.</li>
+</ul></li>
+<li>I used <a href="https://tabula.technology/">Tablula</a> to convert 2018 to 2021 data from PDF into CSVs. The data won’t have headers and each file is a litte different.</li>
+<li>The 2022 is available as an Excel file. I did need cleaning.</li>
+<li>The initial version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.</li>
+</ul>
+<p>Once all the data was imported, I still needed to do some normalization:</p>
+<ul>
+<li>All columns needed the same datatype, etc.</li>
+<li>We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted <a href="https://usfootballr.sportsdataverse.org/index.html">usfootballr</a> for how names and abbreviations were used in hopes of joining with data from that package.</li>
+<li>I wanted to add conference affiliations, which I did manually in the Google Sheet reference.</li>
+</ul>
+<section id="things-to-do" class="level3">
+<h3 class="anchored" data-anchor-id="things-to-do">Things to do</h3>
+<ul>
+<li>I need to double-check all the conference designations before I actually use them.</li>
+<li>I might add color values to the Google Sheet reference since all the packages I’ve checked have been out of date.</li>
+</ul>
+</section>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(teamcolors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="import-the-archive-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-the-archive-data">Import the archive data</h2>
+<p>This brings in the Data is Plural files, which should all be the same.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dip_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">c</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2007.csv"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2008.csv"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2009.csv"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2010.csv"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2011.csv"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2012.csv"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2013.csv"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2014.csv"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2015.csv"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2016.csv"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-processed/data-is-plural/mls-salaries-2017.csv"</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="st">"file_name"</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">str_sub</span>(file_name, <span class="dv">44</span>, <span class="dv">47</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year) <span class="sc">|&gt;</span> <span class="co"># moving year to front</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>file_name) <span class="sc">|&gt;</span>  <span class="co"># dropping file_name</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_short =</span> club)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 5553 Columns: 7
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (4): club, last_name, first_name, position
+dbl (2): base_salary, guaranteed_compensation
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># peek</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dip_data <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_short"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2007","2":"CHI","3":"Armas","4":"Chris","5":"M","6":"225000.0","7":"225000.0"},{"1":"2007","2":"CHI","3":"Banner","4":"Michael","5":"M","6":"12900.0","7":"12900.0"},{"1":"2007","2":"CHI","3":"Barrett","4":"Chad","5":"F","6":"41212.5","7":"48712.5"},{"1":"2007","2":"CHI","3":"Blanco","4":"Cuauhtemoc","5":"F","6":"2492316.0","7":"2666778.0"},{"1":"2007","2":"CHI","3":"Brown","4":"C.J.","5":"D","6":"106391.0","7":"106391.0"},{"1":"2007","2":"CHI","3":"Busch","4":"Jon","5":"GK","6":"58008.0","7":"58008.0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<section id="cleaning-club-abbeviations" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-club-abbeviations">Cleaning club abbeviations</h3>
+<p>There are times when club abbreviations vary. We fix those here.</p>
+<p>Checking them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["club_short"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"ATL","2":"34"},{"1":"CHI","2":"306"},{"1":"CHV","2":"233"},{"1":"CLB","2":"311"},{"1":"COL","2":"308"},{"1":"DAL","2":"322"},{"1":"DC","2":"309"},{"1":"HOU","2":"293"},{"1":"KC","2":"304"},{"1":"LA","2":"315"},{"1":"LAFC","2":"2"},{"1":"MNUFC","2":"27"},{"1":"MTL","2":"175"},{"1":"NE","2":"294"},{"1":"NY","2":"255"},{"1":"NYCFC","2":"88"},{"1":"NYRB","2":"55"},{"1":"None","2":"3"},{"1":"ORL","2":"94"},{"1":"PHI","2":"223"},{"1":"POOL","2":"11"},{"1":"POR","2":"203"},{"1":"Pool","2":"18"},{"1":"RSL","2":"299"},{"1":"SEA","2":"264"},{"1":"SJ","2":"279"},{"1":"TFC","2":"132"},{"1":"TOR","2":"168"},{"1":"VAN","2":"208"},{"1":"NA","2":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Looking through this, I want to make a number of changes. I also ended up checking the usfootballR package for how they do abbreviations. Using SKC for historical data since it was the same club that changed names.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dip_changed <span class="ot">&lt;-</span> dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">club_short_clean =</span> <span class="fu">recode</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      club_short,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"KC"</span> <span class="ot">=</span> <span class="st">"SKC"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"MNUFC"</span> <span class="ot">=</span> <span class="st">"MIN"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"TFC"</span> <span class="ot">=</span> <span class="st">"TOR"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"NYRB"</span> <span class="ot">=</span> <span class="st">"NY"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"NYCFC"</span> <span class="ot">=</span> <span class="st">"NYC"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"None"</span> <span class="ot">=</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"POOL"</span> <span class="ot">=</span> <span class="st">"MLS"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Pool"</span> <span class="ot">=</span> <span class="st">"MLS"</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Checking the changes to make sure they are right.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short, club_short_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["club_short"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_short_clean"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"ATL","2":"ATL","3":"34"},{"1":"CHI","2":"CHI","3":"306"},{"1":"CHV","2":"CHV","3":"233"},{"1":"CLB","2":"CLB","3":"311"},{"1":"COL","2":"COL","3":"308"},{"1":"DAL","2":"DAL","3":"322"},{"1":"DC","2":"DC","3":"309"},{"1":"HOU","2":"HOU","3":"293"},{"1":"KC","2":"SKC","3":"304"},{"1":"LA","2":"LA","3":"315"},{"1":"LAFC","2":"LAFC","3":"2"},{"1":"MNUFC","2":"MIN","3":"27"},{"1":"MTL","2":"MTL","3":"175"},{"1":"NE","2":"NE","3":"294"},{"1":"NY","2":"NY","3":"255"},{"1":"NYCFC","2":"NYC","3":"88"},{"1":"NYRB","2":"NY","3":"55"},{"1":"None","2":"NA","3":"3"},{"1":"ORL","2":"ORL","3":"94"},{"1":"PHI","2":"PHI","3":"223"},{"1":"POOL","2":"MLS","3":"11"},{"1":"POR","2":"POR","3":"203"},{"1":"Pool","2":"MLS","3":"18"},{"1":"RSL","2":"RSL","3":"299"},{"1":"SEA","2":"SEA","3":"264"},{"1":"SJ","2":"SJ","3":"279"},{"1":"TFC","2":"TOR","3":"132"},{"1":"TOR","2":"TOR","3":"168"},{"1":"VAN","2":"VAN","3":"208"},{"1":"NA","2":"NA","3":"20"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="cleaning-column-names-for-dip-files" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-column-names-for-dip-files">Cleaning column names for DIP files</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dip_cleaned <span class="ot">&lt;-</span> dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span>club_short) <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_short =</span> club_short_clean) <span class="sc">|&gt;</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year, club_short)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>dip_cleaned <span class="sc">|&gt;</span> <span class="fu">head</span>()  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_short"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2007","2":"CHI","3":"Armas","4":"Chris","5":"M","6":"225000.0","7":"225000.0"},{"1":"2007","2":"CHI","3":"Banner","4":"Michael","5":"M","6":"12900.0","7":"12900.0"},{"1":"2007","2":"CHI","3":"Barrett","4":"Chad","5":"F","6":"41212.5","7":"48712.5"},{"1":"2007","2":"CHI","3":"Blanco","4":"Cuauhtemoc","5":"F","6":"2492316.0","7":"2666778.0"},{"1":"2007","2":"CHI","3":"Brown","4":"C.J.","5":"D","6":"106391.0","7":"106391.0"},{"1":"2007","2":"CHI","3":"Busch","4":"Jon","5":"GK","6":"58008.0","7":"58008.0"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="cleaning-tabula-conversions" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-tabula-conversions">Cleaning Tabula conversions</h2>
+<p>Each of these files from years 2018 to 2021 will have different issues.</p>
+<section id="salaries" class="level3">
+<h3 class="anchored" data-anchor-id="salaries">2018 salaries</h3>
+<p>For this one, the dollar signs came in as their own column, which was actually helpful so the numbers were actually numbers. I also need to add the year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>s2018_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2018-09-15-Salary-Information-Alphabetical.csv"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"currency_1"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"currency_2"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation"</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">starts_with</span>(<span class="st">"currency"</span>)) <span class="sc">|&gt;</span> <span class="co"># removes dollar signs</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2018"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 694 Columns: 8
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, currency_1, currency_2
+num (2): base_salary, guaranteed_compensation
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>s2018_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2018","2":"New York Red Bulls","3":"Abang","4":"Anatole","5":"F","6":"68927.00","7":"68927.00"},{"1":"2018","2":"New York City FC","3":"Abdul-Salaam","4":"Saad","5":"D","6":"106480.00","7":"120230.00"},{"1":"2018","2":"Columbus Crew","3":"Abu","4":"Mohammed","5":"M","6":"175008.00","7":"181258.00"},{"1":"2018","2":"Columbus Crew","3":"Abubakar","4":"Lalas","5":"D","6":"68250.04","7":"75750.04"},{"1":"2018","2":"Philadelphia Union","3":"Accam","4":"David","5":"F-M","6":"1250000.04","7":"1250000.04"},{"1":"2018","2":"Colorado Rapids","3":"Acosta","4":"Kellyn","5":"M","6":"280000.00","7":"300000.00"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="salaries-1" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-1">2019 salaries</h3>
+<p>For this one, our salaries come in with <code>$</code> in the salary fields, and also with a trailing space and <code>)</code>. We import those a “raw” versions and clean them before using <code>type_convert()</code> to have dplyr try to type them again, changing them to numberic. For some reason I couldn’t just convert to <code>as.numeric()</code> even after it was cleaned up as they came up NA. I also add the year.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>s2019_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2019-Salary-List-Fall-Release-FINAL-Salary-List-Fall-Release-MLS.csv"</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove_all</span>(base_salary_raw, <span class="st">"[</span><span class="sc">\\</span><span class="st">)</span><span class="sc">\\</span><span class="st">$]"</span>) <span class="sc">|&gt;</span> <span class="fu">str_trim</span>(),</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove_all</span>(guaranteed_compensation_raw, <span class="st">"[</span><span class="sc">\\</span><span class="st">)</span><span class="sc">\\</span><span class="st">$]"</span>) <span class="sc">|&gt;</span> <span class="fu">str_trim</span>()</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2019"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 714 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  club_long = col_character(),
+  last_name = col_character(),
+  first_name = col_character(),
+  position = col_character(),
+  base_salary_raw = col_character(),
+  guaranteed_compensation_raw = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>s2019_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2019","2":"Philadelphia Union","3":"Aaronson","4":"Brenden","5":"M-F","6":"70000.08","7":"98309.48"},{"1":"2019","2":"Seattle Sounders FC","3":"Abdul-Salaam","4":"Saad","5":"D","6":"70250.04","7":"70250.04"},{"1":"2019","2":"Colorado Rapids","3":"Abubakar","4":"Lalas","5":"D","6":"135000.00","7":"144937.50"},{"1":"2019","2":"Columbus Crew","3":"Accam","4":"David","5":"M-F","6":"1010004.00","7":"1137920.00"},{"1":"2019","2":"Colorado Rapids","3":"Acosta","4":"Kellyn","5":"D-M","6":"549999.96","7":"664999.96"},{"1":"2019","2":"DC United","3":"Acosta","4":"Luciano","5":"M-F","6":"600000.00","7":"702000.00"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="salaries-2" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-2">2020 salaries</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>s2020_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2020-Fall-Winter-Salary-List-alphabetical.csv"</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove</span>(base_salary_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove</span>(guaranteed_compensation_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2020"</span>, <span class="at">.before =</span> <span class="st">"last_name"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 778 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): last_name, first_name, club_long, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  last_name = col_character(),
+  first_name = col_character(),
+  club_long = col_character(),
+  position = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>s2020_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2020","2":"Aaronson","3":"Brenden","4":"Philadelphia Union","5":"M","6":"85000","7":"103309"},{"1":"2020","2":"Abdul-Salaam","3":"Saad","4":"FC Cincinnati","5":"D","6":"81375","7":"90042"},{"1":"2020","2":"Abu","3":"Mohammed","4":"DC United","5":"M","6":"81375","7":"81375"},{"1":"2020","2":"Abubakar","3":"Lalas","4":"Colorado Rapids","5":"D","6":"145000","7":"154937"},{"1":"2020","2":"Accam","3":"David","4":"Nashville SC","5":"F","6":"875000","7":"1002916"},{"1":"2020","2":"Acevedo","3":"Nicolas","4":"New York City FC","5":"D-M","6":"135000","7":"151000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="salaries-3" class="level3">
+<h3 class="anchored" data-anchor-id="salaries-3">2021 salaries</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>s2021_imported <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"data-raw/tabula-2021-MLSPA-Fall-Salary-release (1).csv"</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"club_long"</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last_name"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_name"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"position"</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"base_salary_raw"</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guaranteed_compensation_raw"</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">base_salary =</span> <span class="fu">str_remove</span>(base_salary_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">guaranteed_compensation =</span> <span class="fu">str_remove</span>(guaranteed_compensation_raw, <span class="st">"</span><span class="sc">\\</span><span class="st">$"</span>),</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"raw"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">type_convert</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2021"</span>, <span class="at">.before =</span> <span class="st">"club_long"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 871 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (6): club_long, last_name, first_name, position, base_salary_raw, guaran...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+── Column specification ────────────────────────────────────────────────────────
+cols(
+  club_long = col_character(),
+  last_name = col_character(),
+  first_name = col_character(),
+  position = col_character(),
+  base_salary = col_number(),
+  guaranteed_compensation = col_number()
+)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>s2021_imported <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"2021","2":"Atlanta United","3":"Adams","4":"Mohammed \"Mo\"","5":"M","6":"121000","7":"141000"},{"1":"2021","2":"Atlanta United","3":"Ambrose","4":"Mikey","5":"D","6":"81375","7":"81375"},{"1":"2021","2":"Atlanta United","3":"Araujo","4":"Luiz","5":"F-M","6":"3600000","7":"3941667"},{"1":"2021","2":"Atlanta United","3":"Barco","4":"Ezequiel","5":"M","6":"1875000","7":"2358333"},{"1":"2021","2":"Atlanta United","3":"Bauer","4":"Josh","5":"D","6":"63547","7":"63547"},{"1":"2021","2":"Atlanta United","3":"Bello","4":"George","5":"D","6":"135000","7":"139000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="import-excel-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-excel-data">Import excel data</h2>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">2022 data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>s2022_imported <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data-raw/MLS Salary 2022.xlsx"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2022"</span>, <span class="at">.before =</span> <span class="st">"first_name"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">position =</span> position_s,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">club_long =</span> club)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>s2022_imported <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 841
+Columns: 7
+$ year                    &lt;chr&gt; "2022", "2022", "2022", "2022", "2022", "2022"…
+$ first_name              &lt;chr&gt; "Artur", "Nanú", "Zeca", "Luquinhas", "Judson"…
+$ last_name               &lt;chr&gt; NA, NA, NA, NA, NA, NA, "Ågren", "Aaronson", "…
+$ club_long               &lt;chr&gt; "Columbus Crew", "FC Dallas", "Houston Dynamo"…
+$ position                &lt;chr&gt; "M", "D", "D", "F", "M", "D", "D", "M", "D", "…
+$ base_salary             &lt;dbl&gt; 564000, 600000, 218182, 1050000, 420000, 40000…
+$ guaranteed_compensation &lt;dbl&gt; 615633, 668750, 259015, 1173125, 425000, 42875…</code></pre>
+</div>
+</div>
+</section>
+<section id="data-1" class="level3">
+<h3 class="anchored" data-anchor-id="data-1">2023 data</h3>
+<p>The first version for 2023 was available as an Excel file. However, there was an update in September of 2023 that was available for download as a PDF (saved in data-raw) but also published as an HTML table that I was able to use a browser-based scraper to create an Excel file. It is this Excel file that I’m using.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>s2023_imported <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"data-raw/2023-Salary-Report-as-of-Sept-15-2023.xlsx"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">year =</span> <span class="st">"2023"</span>, <span class="at">.before =</span> <span class="st">"first_name"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">position =</span> position_s,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">club_long =</span> club)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>s2023_imported <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 924
+Columns: 7
+$ year                    &lt;chr&gt; "2023", "2023", "2023", "2023", "2023", "2023"…
+$ first_name              &lt;chr&gt; "Luis", "Lalas", "Nicolás", "Alonso", "Ifunany…
+$ last_name               &lt;chr&gt; "Abram", "Abubakar", "Acevedo", "Aceves", "Ach…
+$ club_long               &lt;chr&gt; "Atlanta United", "Colorado Rapids", "New York…
+$ position                &lt;chr&gt; "D", "D", "D-M", "D", "F", "D-M", "M", "M-F", …
+$ base_salary             &lt;dbl&gt; 556364, 665000, 230000, 330000, 85444, 1250000…
+$ guaranteed_compensation &lt;dbl&gt; 695977, 702125, 274800, 368900, 85444, 1365000…</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="merge-non-dip-data" class="level2">
+<h2 class="anchored" data-anchor-id="merge-non-dip-data">Merge non-dip data</h2>
+<p>The tabula and excel data both use long club names, so I’ll put those together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="ot">&lt;-</span> s2018_imported <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,822
+Columns: 7
+$ year                    &lt;chr&gt; "2018", "2018", "2018", "2018", "2018", "2018"…
+$ club_long               &lt;chr&gt; "New York Red Bulls", "New York City FC", "Col…
+$ last_name               &lt;chr&gt; "Abang", "Abdul-Salaam", "Abu", "Abubakar", "A…
+$ first_name              &lt;chr&gt; "Anatole", "Saad", "Mohammed", "Lalas", "David…
+$ position                &lt;chr&gt; "F", "D", "M", "D", "F-M", "M", "F-M", "M", "M…
+$ base_salary             &lt;dbl&gt; 68927.00, 106480.00, 175008.00, 68250.04, 1250…
+$ guaranteed_compensation &lt;dbl&gt; 68927.00, 120230.00, 181258.00, 75750.04, 1250…</code></pre>
+</div>
+</div>
+</section>
+<section id="cleaning-long-names-in-non-dip-data" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-long-names-in-non-dip-data">Cleaning long names in non-dip data</h2>
+<p>Checking the names for errors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>non_dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["club_long"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"Atlanta United","2":"195"},{"1":"Austin FC","2":"91"},{"1":"CF Montreal","2":"31"},{"1":"Charlotte FC","2":"65"},{"1":"Chicago Fire","2":"176"},{"1":"Colorado Rapids","2":"185"},{"1":"Columbus Crew","2":"174"},{"1":"DC United","2":"174"},{"1":"FC Cincinnati","2":"157"},{"1":"FC Dallas","2":"189"},{"1":"Houston Dynamo","2":"184"},{"1":"Inter Miami","2":"134"},{"1":"LA Galaxy","2":"184"},{"1":"LAFC","2":"179"},{"1":"Major League Soccer","2":"39"},{"1":"Minnesota United","2":"185"},{"1":"Montreal","2":"68"},{"1":"Montreal Impact","2":"91"},{"1":"Nashville SC","2":"127"},{"1":"New England Revolutio","2":"27"},{"1":"New England Revolution","2":"145"},{"1":"New York City FC","2":"180"},{"1":"New York Red Bulls","2":"183"},{"1":"Orlando City SC","2":"182"},{"1":"Philadelphia Union","2":"175"},{"1":"Portland Timbers","2":"172"},{"1":"Real Salt Lake","2":"195"},{"1":"Retired","2":"1"},{"1":"San Jose Earthquakes","2":"183"},{"1":"Seattle Sounders FC","2":"171"},{"1":"Sporting Kansas City","2":"174"},{"1":"St. Louis City SC","2":"31"},{"1":"Toronto FC","2":"179"},{"1":"Vancouver Whitecaps","2":"187"},{"1":"NA","2":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Some things of note:</p>
+<ul>
+<li>2021 New England Revolution may be missing last <code>n</code>.</li>
+<li>Montreal should probably be CF Montréal</li>
+</ul>
+<p>There are other changes as well based on usfootballR package, etc.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>non_dip_changed <span class="ot">&lt;-</span> non_dip_data <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">club_long_changed =</span> <span class="fu">recode</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>      club_long,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Atlanta United"</span> <span class="ot">=</span> <span class="st">"Atlanta United FC"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Chicago Fire"</span> <span class="ot">=</span> <span class="st">"Chicago Fire FC"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Houston Dynamo"</span> <span class="ot">=</span> <span class="st">"Houston Dynamo FC"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Montreal"</span> <span class="ot">=</span> <span class="st">"CF Montréal"</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Inter Miami"</span> <span class="ot">=</span> <span class="st">"Inter Miami CF"</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"New England Revolutio"</span> <span class="ot">=</span> <span class="st">"New England Revolution"</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"DC United"</span> <span class="ot">=</span> <span class="st">"D.C. United"</span>,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"St. Louis City SC"</span> <span class="ot">=</span> <span class="st">"St. Louis CITY SC"</span>,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Minnesota United"</span> <span class="ot">=</span> <span class="st">"Minnesota United FC"</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>non_dip_changed  <span class="sc">|&gt;</span> </span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_long, club_long_changed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["club_long"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long_changed"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"Atlanta United","2":"Atlanta United FC","3":"195"},{"1":"Austin FC","2":"Austin FC","3":"91"},{"1":"CF Montreal","2":"CF Montreal","3":"31"},{"1":"Charlotte FC","2":"Charlotte FC","3":"65"},{"1":"Chicago Fire","2":"Chicago Fire FC","3":"176"},{"1":"Colorado Rapids","2":"Colorado Rapids","3":"185"},{"1":"Columbus Crew","2":"Columbus Crew","3":"174"},{"1":"DC United","2":"D.C. United","3":"174"},{"1":"FC Cincinnati","2":"FC Cincinnati","3":"157"},{"1":"FC Dallas","2":"FC Dallas","3":"189"},{"1":"Houston Dynamo","2":"Houston Dynamo FC","3":"184"},{"1":"Inter Miami","2":"Inter Miami CF","3":"134"},{"1":"LA Galaxy","2":"LA Galaxy","3":"184"},{"1":"LAFC","2":"LAFC","3":"179"},{"1":"Major League Soccer","2":"Major League Soccer","3":"39"},{"1":"Minnesota United","2":"Minnesota United FC","3":"185"},{"1":"Montreal","2":"CF Montréal","3":"68"},{"1":"Montreal Impact","2":"Montreal Impact","3":"91"},{"1":"Nashville SC","2":"Nashville SC","3":"127"},{"1":"New England Revolutio","2":"New England Revolution","3":"27"},{"1":"New England Revolution","2":"New England Revolution","3":"145"},{"1":"New York City FC","2":"New York City FC","3":"180"},{"1":"New York Red Bulls","2":"New York Red Bulls","3":"183"},{"1":"Orlando City SC","2":"Orlando City SC","3":"182"},{"1":"Philadelphia Union","2":"Philadelphia Union","3":"175"},{"1":"Portland Timbers","2":"Portland Timbers","3":"172"},{"1":"Real Salt Lake","2":"Real Salt Lake","3":"195"},{"1":"Retired","2":"Retired","3":"1"},{"1":"San Jose Earthquakes","2":"San Jose Earthquakes","3":"183"},{"1":"Seattle Sounders FC","2":"Seattle Sounders FC","3":"171"},{"1":"Sporting Kansas City","2":"Sporting Kansas City","3":"174"},{"1":"St. Louis City SC","2":"St. Louis CITY SC","3":"31"},{"1":"Toronto FC","2":"Toronto FC","3":"179"},{"1":"Vancouver Whitecaps","2":"Vancouver Whitecaps","3":"187"},{"1":"NA","2":"NA","3":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Now we’ll fix up the columns.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>non_dip_cleaned <span class="ot">&lt;-</span> non_dip_changed <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>club_long) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">club_long =</span> club_long_changed) <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">relocate</span>(year, club_long)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>non_dip_cleaned <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 4,822
+Columns: 7
+$ year                    &lt;chr&gt; "2018", "2018", "2018", "2018", "2018", "2018"…
+$ club_long               &lt;chr&gt; "New York Red Bulls", "New York City FC", "Col…
+$ last_name               &lt;chr&gt; "Abang", "Abdul-Salaam", "Abu", "Abubakar", "A…
+$ first_name              &lt;chr&gt; "Anatole", "Saad", "Mohammed", "Lalas", "David…
+$ position                &lt;chr&gt; "F", "D", "M", "D", "F-M", "M", "F-M", "M", "M…
+$ base_salary             &lt;dbl&gt; 68927.00, 106480.00, 175008.00, 68250.04, 1250…
+$ guaranteed_compensation &lt;dbl&gt; 68927.00, 120230.00, 181258.00, 75750.04, 1250…</code></pre>
+</div>
+</div>
+</section>
+<section id="building-both-names" class="level2">
+<h2 class="anchored" data-anchor-id="building-both-names">Building both names</h2>
+<p>I’d like to have <code>club_long</code> and <code>club_short</code> for each row of data, but to do that I need to build a conversion chart of some kind. How I tackled this:</p>
+<ul>
+<li>Get a list of all the short names</li>
+<li>Get a list of all the long names</li>
+<li>Add them both to a Google Sheet and match them manually</li>
+<li>Download that sheet and then use joins to fill gaps</li>
+</ul>
+<p>I used the following to get the names, though just to copy into a spreadsheet for a lot of manual research and work.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>clubs_short <span class="ot">&lt;-</span> dip_cleaned <span class="sc">|&gt;</span> <span class="fu">distinct</span>(year, club_short) <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, club_short)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># clubs_short |&gt; clipr::write_clip()</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>clubs_long <span class="ot">&lt;-</span> non_dip_data <span class="sc">|&gt;</span> <span class="fu">distinct</span>(year, club_long) <span class="sc">|&gt;</span> </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(year, club_long)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co"># clubs_long |&gt; clipr::write_clip()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="downloading-in-the-spreadsheet" class="level3">
+<h3 class="anchored" data-anchor-id="downloading-in-the-spreadsheet">Downloading in the spreadsheet</h3>
+<p>The edited Google Sheet is here: <a href="https://docs.google.com/spreadsheets/d/1rH1pbOZYAv_ep4iCihzqrzOYBTreV2oJ014Un4TgEjw/edit?usp=sharing">rws-mls-salaries</a></p>
+<p>Download the clubs list. Commented out after saved locally. Then viewed club names to verify/check them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv", "data-processed/clubs-list.csv")</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>clubs_list <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-processed/clubs-list.csv"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.character</span>(year))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 379 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (3): club_short, club_long, conference
+dbl (1): year
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>clubs_list <span class="sc">|&gt;</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(club_short, club_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["club_short"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["n"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"ATL","2":"Atlanta United FC","3":"8"},{"1":"ATX","2":"Austin FC","3":"4"},{"1":"CHI","2":"Chicago Fire FC","3":"17"},{"1":"CHV","2":"Chivas USA","3":"8"},{"1":"CIN","2":"FC Cincinnati","3":"6"},{"1":"CLB","2":"Columbus Crew","3":"17"},{"1":"CLT","2":"Charlotte FC","3":"3"},{"1":"COL","2":"Colorado Rapids","3":"17"},{"1":"DAL","2":"FC Dallas","3":"17"},{"1":"DC","2":"D.C. United","3":"17"},{"1":"HOU","2":"Houston Dynamo FC","3":"17"},{"1":"LA","2":"LA Galaxy","3":"17"},{"1":"LAFC","2":"LAFC","3":"7"},{"1":"MIA","2":"Inter Miami CF","3":"5"},{"1":"MIN","2":"Minnesota United FC","3":"7"},{"1":"MLS","2":"Major League Soccer","3":"17"},{"1":"MTL","2":"CF Montréal","3":"3"},{"1":"MTL","2":"Montreal Impact","3":"9"},{"1":"NE","2":"New England Revolution","3":"17"},{"1":"NSH","2":"Nashville SC","3":"5"},{"1":"NY","2":"New York Red Bulls","3":"17"},{"1":"NYC","2":"New York City FC","3":"10"},{"1":"ORL","2":"Orlando City SC","3":"10"},{"1":"PHI","2":"Philadelphia Union","3":"14"},{"1":"POR","2":"Portland Timbers","3":"13"},{"1":"RSL","2":"Real Salt Lake","3":"17"},{"1":"SEA","2":"Seattle Sounders FC","3":"16"},{"1":"SJ","2":"San Jose Earthquakes","3":"16"},{"1":"SKC","2":"Kansas City Wizards","3":"4"},{"1":"SKC","2":"Sporting Kansas City","3":"13"},{"1":"STL","2":"St. Louis CITY SC","3":"1"},{"1":"TOR","2":"Toronto FC","3":"17"},{"1":"VAN","2":"Vancouver Whitecaps","3":"13"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<section id="fill-in-our-dip" class="level4">
+<h4 class="anchored" data-anchor-id="fill-in-our-dip">Fill in our DIP</h4>
+<p>The DIP data doesn’t have club_long. We’ll join with our master clubs list to get them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dip_full <span class="ot">&lt;-</span> dip_cleaned <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(clubs_list, <span class="fu">join_by</span>(year <span class="sc">==</span> year, club_short <span class="sc">==</span> club_short))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>dip_full <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_short"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["club_long"],"name":[8],"type":["chr"],"align":["left"]},{"label":["conference"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"2007","2":"CHI","3":"Armas","4":"Chris","5":"M","6":"225000.0","7":"225000.0","8":"Chicago Fire FC","9":"Eastern"},{"1":"2007","2":"CHI","3":"Banner","4":"Michael","5":"M","6":"12900.0","7":"12900.0","8":"Chicago Fire FC","9":"Eastern"},{"1":"2007","2":"CHI","3":"Barrett","4":"Chad","5":"F","6":"41212.5","7":"48712.5","8":"Chicago Fire FC","9":"Eastern"},{"1":"2007","2":"CHI","3":"Blanco","4":"Cuauhtemoc","5":"F","6":"2492316.0","7":"2666778.0","8":"Chicago Fire FC","9":"Eastern"},{"1":"2007","2":"CHI","3":"Brown","4":"C.J.","5":"D","6":"106391.0","7":"106391.0","8":"Chicago Fire FC","9":"Eastern"},{"1":"2007","2":"CHI","3":"Busch","4":"Jon","5":"GK","6":"58008.0","7":"58008.0","8":"Chicago Fire FC","9":"Eastern"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Check for those that did not get a long name to see why.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>dip_full <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(club_long))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_short"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["club_long"],"name":[8],"type":["chr"],"align":["left"]},{"label":["conference"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"2010","2":"NA","3":"Goldthwaite","4":"Kevin","5":"D","6":"120000.00","7":"129000.0","8":"NA","9":"NA"},{"1":"2010","2":"NA","3":"Waibel","4":"Craig","5":"D","6":"84710.00","7":"84710.0","8":"NA","9":"NA"},{"1":"2010","2":"NA","3":"Wolyniec","4":"John","5":"F","6":"88000.00","7":"88000.0","8":"NA","9":"NA"},{"1":"2012","2":"NA","3":"Sassano","4":"Luke","5":"M-D","6":"81000.00","7":"83025.0","8":"NA","9":"NA"},{"1":"2012","2":"NA","3":"White","4":"Jeremiah","5":"M","6":"44004.00","7":"44004.0","8":"NA","9":"NA"},{"1":"2013","2":"NA","3":"Araujo Jr.","4":"Paulo","5":"F","6":"60000.00","7":"60000.0","8":"NA","9":"NA"},{"1":"2013","2":"NA","3":"Dunfield","4":"Terry","5":"M","6":"120000.00","7":"120000.0","8":"NA","9":"NA"},{"1":"2013","2":"NA","3":"Muniz","4":"Nico","5":"M","6":"46500.00","7":"48500.0","8":"NA","9":"NA"},{"1":"2014","2":"NA","3":"Borja","4":"Carlos","5":"D","6":"52313.00","7":"52313.0","8":"NA","9":"NA"},{"1":"2014","2":"NA","3":"Gardner","4":"Joshua","5":"M","6":"70000.00","7":"70000.0","8":"NA","9":"NA"},{"1":"2014","2":"NA","3":"Melia","4":"Tim","5":"GK","6":"70000.00","7":"75000.0","8":"NA","9":"NA"},{"1":"2015","2":"NA","3":"Dike","4":"Bright","5":"F","6":"60638.00","7":"64388.0","8":"NA","9":"NA"},{"1":"2015","2":"NA","3":"Hurtado","4":"Jhon Kennedy","5":"D","6":"230000.00","7":"230000.0","8":"NA","9":"NA"},{"1":"2015","2":"NA","3":"Lochhead","4":"Tony","5":"D","6":"134375.00","7":"134375.0","8":"NA","9":"NA"},{"1":"2015","2":"NA","3":"Tshuma","4":"Schillo","5":"F","6":"85000.00","7":"123000.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Gargan","4":"Dan","5":"D","6":"145000.00","7":"145000.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Martinez","4":"Cristian","5":"M","6":"62508.00","7":"67008.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Moore","4":"Luke","5":"F","6":"115000.00","7":"137500.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Nyassi","4":"Sanna","5":"M","6":"135000.00","7":"141250.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Ovalle","4":"Adolfo","5":"M","6":"63000.00","7":"73500.0","8":"NA","9":"NA"},{"1":"2016","2":"NA","3":"Tshuma","4":"Schillo","5":"F","6":"81999.96","7":"120000.0","8":"NA","9":"NA"},{"1":"2017","2":"NA","3":"Babouli","4":"Mo","5":"F","6":"54075.00","7":"54075.0","8":"NA","9":"NA"},{"1":"2017","2":"NA","3":"Ramajo","4":"David Mateos","5":"D","6":"420000.00","7":"453333.3","8":"NA","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="fill-in-non-dip" class="level4">
+<h4 class="anchored" data-anchor-id="fill-in-non-dip">Fill in non-dip</h4>
+<p>The non-DIP data doesn’t have the short name, so we join with clubs_list reference file for them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>non_dip_full <span class="ot">&lt;-</span> non_dip_cleaned <span class="sc">|&gt;</span> </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(clubs_list, <span class="fu">join_by</span>(year <span class="sc">==</span> year, club_long <span class="sc">==</span> club_long))</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>non_dip_full <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["club_short"],"name":[8],"type":["chr"],"align":["left"]},{"label":["conference"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"2018","2":"New York Red Bulls","3":"Abang","4":"Anatole","5":"F","6":"68927.00","7":"68927.00","8":"NY","9":"Eastern"},{"1":"2018","2":"New York City FC","3":"Abdul-Salaam","4":"Saad","5":"D","6":"106480.00","7":"120230.00","8":"NYC","9":"Eastern"},{"1":"2018","2":"Columbus Crew","3":"Abu","4":"Mohammed","5":"M","6":"175008.00","7":"181258.00","8":"CLB","9":"Eastern"},{"1":"2018","2":"Columbus Crew","3":"Abubakar","4":"Lalas","5":"D","6":"68250.04","7":"75750.04","8":"CLB","9":"Eastern"},{"1":"2018","2":"Philadelphia Union","3":"Accam","4":"David","5":"F-M","6":"1250000.04","7":"1250000.04","8":"PHI","9":"Eastern"},{"1":"2018","2":"Colorado Rapids","3":"Acosta","4":"Kellyn","5":"M","6":"280000.00","7":"300000.00","8":"COL","9":"Western"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Check those that did not get a short name to research why.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>non_dip_full <span class="sc">|&gt;</span> </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(club_short))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["chr"],"align":["left"]},{"label":["club_long"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[4],"type":["chr"],"align":["left"]},{"label":["position"],"name":[5],"type":["chr"],"align":["left"]},{"label":["base_salary"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["guaranteed_compensation"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["club_short"],"name":[8],"type":["chr"],"align":["left"]},{"label":["conference"],"name":[9],"type":["chr"],"align":["left"]}],"data":[{"1":"2018","2":"Retired","3":"Dempsey","4":"Clint","5":"F","6":"1100000.0","7":"1650000.0","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"DePuy","4":"Nick","5":"F","6":"68254.2","7":"75754.2","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Keita","4":"Muhamed","5":"F","6":"325000.0","7":"367291.7","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Konopka","4":"Chris","5":"GK","6":"67500.0","7":"67500.0","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Lefevre","4":"Wandrille","5":"D","6":"109999.9","7":"119499.9","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Leiton","4":"Jose","5":"F-M","6":"67500.0","7":"83000.0","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Malki","4":"George","5":"D","6":"68254.2","7":"68254.2","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Myers","4":"Chance","5":"D","6":"175008.0","7":"175008.0","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Peterson","4":"Jacob","5":"F","6":"173568.0","7":"180818.0","8":"NA","9":"NA"},{"1":"2018","2":"NA","3":"Tchani","4":"Tony","5":"M","6":"320000.0","7":"353333.3","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Álvarez","4":"Fernando","5":"D","6":"85444.0","7":"117444.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Assi","4":"Jean-Aniel","5":"M","6":"85444.0","7":"94749.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Brault-Guillard","4":"Zachary","5":"D","6":"275000.0","7":"319375.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Campbell","4":"George","5":"D","6":"325000.0","7":"365625.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Choinière","4":"Mathieu","5":"M","6":"250000.0","7":"276667.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Corbo","4":"Gabriele","5":"D","6":"216350.0","7":"216350.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Duke","4":"Bryce","5":"M","6":"150000.0","7":"231875.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Hamdi","4":"Ahmed","5":"M-F","6":"500000.0","7":"597500.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Herrera","4":"Aarón","5":"D","6":"725000.0","7":"820220.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Ibrahim","4":"Sunusi","5":"F","6":"200000.0","7":"291250.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Iliadis","4":"Ilias","5":"D-M","6":"85444.0","7":"92319.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Jabang","4":"Ousman","5":"D-M","6":"67360.0","7":"67360.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Ketterer","4":"Logan","5":"GK","6":"88200.0","7":"88200.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Kwizera","4":"Jojea","5":"M","6":"68775.0","7":"68775.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Lappalainen","4":"Lassi","5":"M","6":"630000.0","7":"660000.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Lassiter","4":"Ariel","5":"M","6":"220000.0","7":"240280.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Miljevic","4":"Matko","5":"M","6":"545455.0","7":"593364.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Offor","4":"Chinonso","5":"F","6":"200000.0","7":"257875.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Opoku","4":"Kwadwo","5":"M","6":"310344.0","7":"512100.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Pantemis","4":"James","5":"GK","6":"144996.0","7":"163996.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Piette","4":"Samuel","5":"D-M","6":"397375.0","7":"469563.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Quioto","4":"Romell","5":"F","6":"950000.0","7":"1035000.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Rea","4":"Sean","5":"M-F","6":"85444.0","7":"92340.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Saliba","4":"Nathan-Dylan","5":"M","6":"67360.0","7":"79169.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Sirois","4":"Jonathan","5":"GK","6":"85444.0","7":"89780.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Thorkelsson","4":"Róbert Orri","5":"D","6":"175000.0","7":"198500.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Toye","4":"Mason","5":"F","6":"550000.0","7":"608000.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Vilsaint","4":"Jules-Anthony","5":"F","6":"85444.0","7":"92319.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Wanyama","4":"Victor","5":"D-M","6":"1440000.0","7":"1800000.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Waterman","4":"Joel","5":"D","6":"161369.0","7":"288202.0","8":"NA","9":"NA"},{"1":"2023","2":"CF Montreal","3":"Zouhir","4":"Rida","5":"M","6":"85444.0","7":"92340.0","8":"NA","9":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="merge-all-the-versions-together" class="level2">
+<h2 class="anchored" data-anchor-id="merge-all-the-versions-together">Merge all the versions together</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>mls_salaries <span class="ot">&lt;-</span> dip_full <span class="sc">|&gt;</span> </span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(non_dip_full) <span class="sc">|&gt;</span> </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    year,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    club_short,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    last_name,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>    first_name,</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    position,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    base_salary,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">compensation =</span> guaranteed_compensation,</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    club_long,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    conference</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>mls_salaries <span class="sc">|&gt;</span> <span class="fu">glimpse</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 10,375
+Columns: 9
+$ year         &lt;chr&gt; "2007", "2007", "2007", "2007", "2007", "2007", "2007", "…
+$ club_short   &lt;chr&gt; "CHI", "CHI", "CHI", "CHI", "CHI", "CHI", "CHI", "CHI", "…
+$ last_name    &lt;chr&gt; "Armas", "Banner", "Barrett", "Blanco", "Brown", "Busch",…
+$ first_name   &lt;chr&gt; "Chris", "Michael", "Chad", "Cuauhtemoc", "C.J.", "Jon", …
+$ position     &lt;chr&gt; "M", "M", "F", "F", "D", "GK", "F", "D", "M", "D", "D", "…
+$ base_salary  &lt;dbl&gt; 225000.0, 12900.0, 41212.5, 2492316.0, 106391.0, 58008.0,…
+$ compensation &lt;dbl&gt; 225000.0, 12900.0, 48712.5, 2666778.0, 106391.0, 58008.0,…
+$ club_long    &lt;chr&gt; "Chicago Fire FC", "Chicago Fire FC", "Chicago Fire FC", …
+$ conference   &lt;chr&gt; "Eastern", "Eastern", "Eastern", "Eastern", "Eastern", "E…</code></pre>
+</div>
+</div>
+</section>
+<section id="export-the-cleaned-data" class="level2">
+<h2 class="anchored" data-anchor-id="export-the-cleaned-data">Export the cleaned data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>mls_salaries <span class="sc">|&gt;</span> <span class="fu">write_rds</span>(<span class="st">"data-processed/mls-salaries.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      return note.innerHTML;
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
