@@ -9,15 +9,17 @@ Our data all comes from the [MLS Players Association](https://mlsplayers.org/res
 
 - We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
   + It's interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.
-- I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a litte different.
-- The 2022 is available as an Excel file. I did need cleaning.
-- The initial version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
+- I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a little different.
+- The 2022 is available as an Excel file. It did need cleaning.
+- The May version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
+- The early 2024 version was released as a CSV and an HTML table. I scraped the HTML table and created an Excel file because it had a player not listed in the csv file.
 
 Once all the data was imported, I still needed to do some normalization:
 
 - All columns needed the same datatype, etc.
 - We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted [usfootballr](https://usfootballr.sportsdataverse.org/index.html) for how names and abbreviations were used in hopes of joining with data from that package.
 - I wanted to add conference affiliations, which I did manually in the Google Sheet reference.
+- I normalized positions with preference for letter designations using hyphens for multi-position players.
 
 ### Things to do
 
@@ -252,13 +254,51 @@ s2023_imported <- read_excel("data-raw/2023-Salary-Report-as-of-Sept-15-2023.xls
 s2023_imported |> glimpse()
 ```
 
+### 2024 data
+
+This 2024 Excel file was created by scraping an HTML table from the MLSPA site. There is a May 2024 csv file available, but it is missing Toronto FC player Aimé Mabika.
+
+```{r}
+s2024_imported <- read_excel("data-raw/2024-Salary-Report-as-of-Apr-25-2023.xlsx") |> clean_names() |> 
+  add_column(year = "2024", .before = "first_name") |>
+  rename(position = position_s,
+         club_long = club)
+
+s2024_imported |> glimpse()
+
+```
+
+#### Checking 2024 csv
+
+I would prefer to use this downloadable csv, but it is missing a player.
+
+```{r}
+s2024_csv <- read_csv("data-raw/MLS-Salaries-as-of-4-25-2024-for-release-Final.txt") |> clean_names() |> 
+  add_column(year = "2024", .before = "first_name") |>
+  rename(position = position_s,
+         club_long = club,
+         guaranteed_compensation = guaranteed_comp) |> 
+  mutate(across(6:7, parse_number))
+
+s2024_csv |> 
+  glimpse()
+```
+
+Who is missing?
+
+```{r}
+s2024_imported |> 
+  anti_join(s2024_csv)
+```
+
+
 ## Merge non-dip data
 
 The tabula and excel data both use long club names, so I'll put those together.
 
 ```{r}
 non_dip_data <- s2018_imported |> 
-  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported)
+  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported, s2024_imported)
 
 non_dip_data |> glimpse()
 ```
@@ -276,23 +316,28 @@ Some things of note:
 
 - 2021 New England Revolution may be missing last `n`.
 - Montreal should probably be CF Montréal
+- "MLS Pool" changed to "Major League Soccer" for consistency
 
 There are other changes as well based on usfootballR package, etc.
 
 ```{r}
 non_dip_changed <- non_dip_data |> 
   mutate(
-    club_long_changed = recode(
+    club_long_changed = case_match(
       club_long,
-      "Atlanta United" = "Atlanta United FC",
-      "Chicago Fire" = "Chicago Fire FC",
-      "Houston Dynamo" = "Houston Dynamo FC",
-      "Montreal" = "CF Montréal",
-      "Inter Miami" = "Inter Miami CF",
-      "New England Revolutio" = "New England Revolution",
-      "DC United" = "D.C. United",
-      "St. Louis City SC" = "St. Louis CITY SC",
-      "Minnesota United" = "Minnesota United FC"
+      "Atlanta United" ~ "Atlanta United FC",
+      "Chicago Fire" ~ "Chicago Fire FC",
+      "Houston Dynamo" ~ "Houston Dynamo FC",
+      "CF Montreal" ~ "CF Montréal",
+      "Montreal" ~ "CF Montréal",
+      # "Montreal Impact" ~ "CF Montréal",
+      "Inter Miami" ~ "Inter Miami CF",
+      "New England Revolutio" ~ "New England Revolution",
+      "DC United" ~ "D.C. United",
+      "St. Louis City SC" ~ "St. Louis CITY SC",
+      "Minnesota United" ~ "Minnesota United FC",
+      "MLS Pool" ~ "Major League Soccer",
+      .default = club_long
     )
   )
 
@@ -313,7 +358,11 @@ non_dip_cleaned |> glimpse()
 
 ## Building both names
 
-I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind. How I tackled this:
+I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind.
+
+It is `club_short` that I'd like to be consistent for a market, where `club_long` changes as branding changes.
+
+How I tackled this:
 
 - Get a list of all the short names
 - Get a list of all the long names
@@ -368,6 +417,7 @@ dip_full |>
   filter(is.na(club_long))
 ```
 
+These players are not attached to teams.
 
 #### Fill in non-dip
 
@@ -390,7 +440,7 @@ non_dip_full |>
 ## Merge all the versions together
 
 ```{r}
-mls_salaries <- dip_full |> 
+binded <- dip_full |> 
   bind_rows(non_dip_full) |> 
   select(
     year,
@@ -404,11 +454,92 @@ mls_salaries <- dip_full |>
     conference
   )
 
-mls_salaries |> glimpse()
+binded |> glimpse()
 ```
-## Export the cleaned data
+
+## Clean positions
+
+Peek at the positions.
 
 ```{r}
+binded |> 
+  count(position)
+
+## Help to get me a list of positions
+# binded |> distinct(position) |> pull() |> clipr::write_clip()
+```
+
+It's clear some cleanup is needed, and will take some decisions. I'm going to go with letter designations with hyphens when necessary.
+
+```{r}
+positions <- binded |> 
+  mutate(
+    position_new = 
+    case_match(
+      position,
+      # "M" ~ "",
+      # "F" ~ "",
+      # "D" ~ "",
+      # "GK" ~ "",
+      # "D-M" ~ "",
+      # "F-D" ~ "",
+      # "F-M" ~ "",
+      # "M-D" ~ "",
+      # "M-F" ~ "",
+      # "D-F" ~ "",
+      "MF" ~ "M-F",
+      "M/F" ~ "M-F",
+      "M/D" ~ "M-D",
+      "D/M" ~ "D-M",
+      "D/F" ~ "D-F",
+      "F/M" ~ "F-M",
+      # "NA" ~ "",
+      "Right Wing" ~ "F",
+      "Center-back" ~ "D",
+      "Defensive Midfield" ~ "D-M",
+      "Attacking Midfield" ~ "M-F",
+      "Center Forward" ~ "F",
+      "Left-back" ~ "D",
+      "Central Midfield" ~ "M",
+      "Forward" ~ "F",
+      "Right-back" ~ "F",
+      "Left Wing" ~ "F",
+      "Goalkeeper" ~ "GK",
+      "Left Midfield" ~ "M",
+      "Right Midfield" ~ "M",
+      "Midfielder" ~ "M",
+      "Defender" ~ "D",
+      .default = position
+    )
+  )
+
+positions |> 
+  count(position, position_new)
+```
+
+Clean up the columns
+
+```{r}
+positions_fixed <- positions |> 
+  select(!position) |> 
+  rename(position = position_new) |> 
+  relocate(position, .after = first_name)
+
+positions_fixed  
+```
+
+
+
+## Export the cleaned data
+
+Assign last cleaning dataframe and export
+
+```{r}
+
+mls_salaries <- positions_fixed |> 
+  arrange(year, club_short, last_name, first_name)
+
 mls_salaries |> write_rds("data-processed/mls-salaries.rds")
 ```
+
 

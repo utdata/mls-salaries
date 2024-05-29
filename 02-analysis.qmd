@@ -1,8 +1,12 @@
 ---
-title: "Analysis 2023"
+title: "Analysis 2024"
 ---
 
 ## Goals of this notebook
+
+::: callout-important
+The most recent data for this analysis was released in May 2024. The MLS will update salaries again after the summer transfer window, usually in September.
+:::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
 
@@ -44,7 +48,7 @@ salaries |> glimpse()
 I'm creating an object called `recent_year` because at some point I'll have new data and might want to just change the year.
 
 ```{r}
-recent_year <- "2023"
+recent_year <- "2024"
 ```
 
 
@@ -70,21 +74,31 @@ Upon his signing on July 15, 2023, Lionel Messi became the highest paid player i
 
 ```{r}
 sal_high_recent <- salaries |> 
-  filter(year == max(year)) |> 
+  filter(year == recent_year) |> 
+  mutate(rank = min_rank(desc(compensation))) |> 
+  relocate(rank) |> 
   arrange(compensation |> desc()) |> 
   select(!c(club_long, conference))
 
-sal_high_recent |> 
-  filter(compensation > 4000000)
+sal_high_recent
 ```
 
-#### Data takeaway: Driussi 6th in 2023
+Teams with more than one player from top 10
 
-For 2023, Austin FC's Sebastián Driussi is the 6th highest player in the MLS and Houston's Hector Herrera is the 7th highest-paid player.
+```{r}
+sal_high_recent |> 
+  filter(rank <= 10) |> 
+  count(club_short, sort = T)
+```
 
-Several teams have two top 10 earners on their rosters: Inter Miami, Toronto FC and the L.A. Galaxy.
 
-### Difference with just base pay in 2023?
+#### Data takeaway: Driussi 5th in early 2024
+
+For the early 2024 release, Austin FC's Sebastián Driussi is the 5th highest player in the MLS and Houston's Hector Herrera is the 8th highest-paid player.
+
+Both Inter Miami and Toronto FC have two top 10 earners on their rosters.
+
+### Difference with just base pay in 2024?
 
 This looks at just the base salary as opposed to total compensation. No great changes at the top of the list.
 
@@ -103,6 +117,8 @@ We'll get per-year salaries by team, then look at just this year.
 
 ### Highest team salaries over time
 
+First get the total compensation for each team in each year.
+
 ```{r}
 sal_team <- salaries |> 
   group_by(year, club_long) |> 
@@ -110,10 +126,10 @@ sal_team <- salaries |>
   arrange(total_compensation |> desc())
 
 # peek at the top
-sal_team |> head(10)
+sal_team |> filter(total_compensation > 20000000)
 ```
 
-And who has been the top spending team each year?
+Then find the top team for each year.
 
 ```{r}
 #| message: false
@@ -122,12 +138,18 @@ top_sal_team_yr <- salaries |>
   summarise(total_compensation = sum(compensation)) |> 
   slice_max(total_compensation)
 
+top_sal_team_yr
+```
+
+And note how often the teams have been the top spender.
+
+```{r}
 top_sal_team_yr |> 
   ungroup() |> 
   tabyl(club_long) |> 
   adorn_totals("row") |>
   adorn_pct_formatting() |> 
-  as.tibble()
+  as_tibble()
 ```
 
 #### Data takeaways: Toronto historically spends high
@@ -157,7 +179,7 @@ sal_team_recent_mil
 Let's chart this
 
 ```{r}
-#| label: fig-2023-team-salary
+#| label: fig-2024-team-salary
 #| fig-cap: "Messi drives Miami team salary"
 #| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Inter Miami and Toronto FC top the list."
 
@@ -181,11 +203,11 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
     theme_minimal()
 
 
-ggsave("figures/team-salary-2023.png")
+ggsave("figures/team-salary-recent.png")
 
 ```
 
-![](figures/team-salary-2023.png)
+![](figures/team-salary-2024.png)
 
 One more look to see how many high-paid players on each team.
 
@@ -195,12 +217,9 @@ sal_high_recent |>
   count(club_short, sort = T)
 ```
 
-
-
-
 #### Data Takeaway: Miami, Toronto tops
 
-Given the historic signing of Lionel Messi, it is no surprise that Inter Miami have the highest team salary for the 2023 season. Toronto ranks second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
+Given the historic signing of Lionel Messi in 2023, it is no surprise that Inter Miami have the highest team salary for the 2024 season. Toronto ranks second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
 
 
 ### Team spending over time
@@ -234,7 +253,7 @@ Visualizing all of them would be tricky. Let's do the top five over last five ye
 ```{r}
 sal_team_rank_top <- sal_team_rank |> 
   filter(rank <= 5,
-         year >= "2019")
+         year >= (as.numeric(recent_year) - 4))
 
 sal_team_rank_top
 ```
@@ -249,20 +268,26 @@ sal_team_rank_top |>
 
 ### Let's visualze spending rank
 
-I want to use a list of team-specific colors. I'm trying this manually first, based on the results of the chart. The colors were pulled [from here](https://teamcolorcodes.com/soccer/mls-team-color-codes/), though I wish I could instead join with a data package and pull from the team colors.
+> This has to be adjusted when new data is added.
+
+I want to use a list of team-specific colors. I'm trying this manually first, based on the results of the chart. The colors were pulled [from here](https://teamcolorcodes.com/soccer/mls-team-color-codes/), though I wish I could instead join with a data package and pull from the team colors, but I haven't found one that is up-to-date.
 
 ```{r}
 #| label: club_colors
 
+sal_team_rank_top |> count(club_short)
+
 club_color_list <- c(
   "#80000A", # ATL
   "#7CCDEF", # CHI
+  "#FE5000", # CIN or 003087
   "#FEDD00", # CLB
   "#00245D", # LA
   "#C39E6D", # LAFC
   "#F7B5CD", # MIA
   "#CE0E2D", # NE
-  "#5D9741", # SEA
+  "#ECE83A", #NSH
+  # "#5D9741", # SEA
   "#B81137" # TOR
   # "#EF3E42" # DC
   # "#00B140", # AUS
@@ -297,10 +322,10 @@ subtitle = str_wrap("The L.A. Galaxy are the only MLS team to rank as a top five
 
 # sal_team_rank_top_plot
 
-ggsave("figures/sal_team_rank-new.png")
+ggsave("figures/sal_team_rank.png")
 ```
 
-![](figures/sal_team_rank-new.png)
+![](figures/sal_team_rank.png)
 
 Let's count how many times each team is in this list.
 
@@ -312,12 +337,6 @@ sal_team_rank_top |>
 
 #### Data Takeaway: Miami and LA 
 
-Among the teams spending the most on their rosters over the past five years, only the L.A. Galaxy have ranked in the top five each year. Toronto FC and Inter Miami have been top spenders in four of the last five years.
+Among the teams spending the most on their rosters over the past five years, Miami has ranked in the top five each year. The LA Galaxy and Toronto FC have been top spenders in four of the last five years.
 
-## Team abbrs
-
-```{r}
-# salaries |> 
-#   count(club_short) |> pull(club_short) |> clipr::write_clip()
-```
 
