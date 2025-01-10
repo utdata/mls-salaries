@@ -1,4 +1,4 @@
 - source: project
   quarto-pub:
     - id: 5a393ca0-e540-4d72-ac32-6a32dc3b4c8b
-      url: 'https://christianmcdonald.quarto.pub/mls-salaries'
+      url: https://christianmcdonald.quarto.pub/mls-salaries

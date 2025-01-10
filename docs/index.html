@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.542">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,16 +35,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dcc7d9e706e4adfbab8e3d6c7c60bab2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -71,57 +71,96 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">MLS Salaries</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./01-cleaning.html"> 
-<span class="menu-text">Cleaning</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./02-analysis.html"> 
-<span class="menu-text">Analysis 2024</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./02-pts-salary.html"> 
-<span class="menu-text">Points vs salaries</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./explore-api.html"> 
-<span class="menu-text">API explore</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Home</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">MLS Salaries</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Home</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cleaning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analysis 2024</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-pts-salary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Points vs salaries</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./99-mls-colors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MLS colors</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mls-salaries" id="toc-mls-salaries" class="nav-link active" data-scroll-target="#mls-salaries">MLS Salaries</a>
+  <ul class="collapse">
+  <li><a href="#questions-to-answer" id="toc-questions-to-answer" class="nav-link" data-scroll-target="#questions-to-answer">Questions to answer</a></li>
+  <li><a href="#future-considerations" id="toc-future-considerations" class="nav-link" data-scroll-target="#future-considerations">Future considerations</a></li>
+  <li><a href="#summary-of-findings" id="toc-summary-of-findings" class="nav-link" data-scroll-target="#summary-of-findings">Summary of findings</a>
+  <ul class="collapse">
+  <li><a href="#inter-miami-was-already-spending-before-messi" id="toc-inter-miami-was-already-spending-before-messi" class="nav-link" data-scroll-target="#inter-miami-was-already-spending-before-messi">Inter Miami was already spending before Messi</a></li>
+  <li><a href="#other-facts" id="toc-other-facts" class="nav-link" data-scroll-target="#other-facts">Other facts</a></li>
+  </ul></li>
+  <li><a href="#notes-to-self" id="toc-notes-to-self" class="nav-link" data-scroll-target="#notes-to-self">Notes to self</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
@@ -129,7 +168,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="mls-salaries" class="level1">
 <h1>MLS Salaries</h1>
 <p>This is an analysis of MLS Salary data from the <a href="https://mlsplayers.org/resources/salary-guide">MLS Players Association</a>. They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.</p>
-<p>This is updated through the early salary release in the 2024 season.</p>
+<p>This is updated through the 2024 season.</p>
 <p>The main notebooks are <a href="./01-cleaning.html">Cleaning</a> and <a href="./02-analysis.html">Analysis 2024</a>. There are some other exploratory notebooks that are not yet included in findings below.</p>
 <p>The code is public on <a href="https://github.com/utdata/rwd-mls-salaries">Github</a>. The published notebooks are on <a href="https://christianmcdonald.quarto.pub/mls-salaries/">Quarto Pub</a>.</p>
 <section id="questions-to-answer" class="level3">
@@ -138,7 +177,12 @@ ul.task-list li input[type="checkbox"] {
 <li>Players that were paid the most over time and recently</li>
 <li>Teams that spent the most over time and recently</li>
 <li>Top spending teams over the past several years</li>
-<li>Future consideration: Is it possible to compare club spending to season results? This will require more data and perhaps other packages.</li>
+</ul>
+</section>
+<section id="future-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="future-considerations">Future considerations</h3>
+<ul>
+<li>Is it possible to compare club spending to season results? This will require more data and perhaps other packages.</li>
 </ul>
 </section>
 <section id="summary-of-findings" class="level2">
@@ -152,13 +196,13 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="other-facts">Other facts</h3>
 <ul>
 <li>Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at $15.5 million before Messi was signed in July. They were the only players earning more than $10 million within a year.</li>
-<li>In early 2024, Austin FC’s Sebastián Driussi was the 5th highest player. In 2023, Driussi was 6th.</li>
+<li>In 2024, Austin FC’s Sebastián Driussi was the 4th highest player. In 2023, Driussi was 6th.</li>
 <li>Inter Miami and Toronto FC had two top 10 earners on their rosters.</li>
 <li>Given the historic signing of Lionel Messi, it is no surprise that Inter Miami have the highest team salary for the 2023 and 2024 seasons. Toronto has ranked second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.</li>
 <li>Looking at the most expensive rosters in the MLS over time, Toronto FC has been the top-spending team seven times.</li>
 <li>Toronto FC and Inter Miami have been top five spenders in each of the past five years.</li>
 </ul>
-<p><img src="figures/team-salary-recent.png" class="img-fluid"></p>
+<p><img src="figures/team-salary-2024.png" class="img-fluid"></p>
 <p><img src="figures/sal_team_rank.png" class="img-fluid"></p>
 </section>
 </section>
@@ -209,18 +253,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -252,7 +285,45 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -287,7 +358,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
@@ -335,7 +410,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      return note.innerHTML;
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
     }
   }
   for (var i=0; i<xrefs.length; i++) {

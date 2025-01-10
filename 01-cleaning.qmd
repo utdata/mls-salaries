@@ -7,24 +7,24 @@ format: html
 
 Our data all comes from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide) but it was published in different formats throughout the years.
 
-- We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
-  + It's interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.
-- I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a little different.
-- The 2022 is available as an Excel file. It did need cleaning.
-- The May version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
-- The early 2024 version was released as a CSV and an HTML table. I scraped the HTML table and created an Excel file because it had a player not listed in the csv file.
+-   We are starting with some historical data already cleaned by Jeremy Singer-Vine for the Data is Plural newsletter: [Github archive](https://github.com/data-is-plural/mls-salaries). It goes from 2007 to 2017.
+    -   It's interesting that the DIP PDF for 2017 is different from what I downloaded from the MLSPA site. It appears to have pool MLS players that the downloaded PDFs do not.
+-   I used [Tablula](https://tabula.technology/) to convert 2018 to 2021 data from PDF into CSVs. The data won't have headers and each file is a little different.
+-   The 2022 is available as an Excel file. It did need cleaning.
+-   The May version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
+-   The early 2024 version was released as a CSV and an HTML table. I scraped the HTML table and created an Excel file because it had a player not listed in the csv file.
 
 Once all the data was imported, I still needed to do some normalization:
 
-- All columns needed the same datatype, etc.
-- We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted [usfootballr](https://usfootballr.sportsdataverse.org/index.html) for how names and abbreviations were used in hopes of joining with data from that package.
-- I wanted to add conference affiliations, which I did manually in the Google Sheet reference.
-- I normalized positions with preference for letter designations using hyphens for multi-position players.
+-   All columns needed the same datatype, etc.
+-   We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted [usfootballr](https://usfootballr.sportsdataverse.org/index.html) for how names and abbreviations were used in hopes of joining with data from that package.
+-   I wanted to add conference affiliations, which I did manually in the Google Sheet reference.
+-   I normalized positions with preference for letter designations using hyphens for multi-position players.
 
 ### Things to do
 
-- I need to double-check all the conference designations before I actually use them.
-- I might add color values to the Google Sheet reference since all the packages I've checked have been out of date.
+-   I need to double-check all the conference designations before I actually use them.
+-   I might add color values to the Google Sheet reference since all the packages I've checked have been out of date.
 
 ## Setup
 
@@ -256,41 +256,23 @@ s2023_imported |> glimpse()
 
 ### 2024 data
 
-This 2024 Excel file was created by scraping an HTML table from the MLSPA site. There is a May 2024 csv file available, but it is missing Toronto FC player Aimé Mabika.
+The 2024 data was downloaded from MLSPA in Jan. 2025 but the file appears to be a Oct. 24, 2024 export, being after the official Sept. 13th release of the fall report.
 
 ```{r}
-s2024_imported <- read_excel("data-raw/2024-Salary-Report-as-of-Apr-25-2023.xlsx") |> clean_names() |> 
-  add_column(year = "2024", .before = "first_name") |>
-  rename(position = position_s,
-         club_long = club)
+s2024_imported <- read_csv("data-raw/Salary-Release-FALL-2024_241024_164547.txt") |> clean_names() |> 
+  add_column(year = "2024", .before = "fname") |>
+  rename(
+    first_name = fname,
+    last_name = lname,
+    club_long = club,
+    guaranteed_compensation = cy_guaranteed_comp,
+    base_salary = cy_base_salary
+  ) |> 
+  mutate(across(7:8, parse_number)) |> 
+  select(-num)
 
 s2024_imported |> glimpse()
-
 ```
-
-#### Checking 2024 csv
-
-I would prefer to use this downloadable csv, but it is missing a player.
-
-```{r}
-s2024_csv <- read_csv("data-raw/MLS-Salaries-as-of-4-25-2024-for-release-Final.txt") |> clean_names() |> 
-  add_column(year = "2024", .before = "first_name") |>
-  rename(position = position_s,
-         club_long = club,
-         guaranteed_compensation = guaranteed_comp) |> 
-  mutate(across(6:7, parse_number))
-
-s2024_csv |> 
-  glimpse()
-```
-
-Who is missing?
-
-```{r}
-s2024_imported |> 
-  anti_join(s2024_csv)
-```
-
 
 ## Merge non-dip data
 
@@ -314,9 +296,9 @@ non_dip_data |>
 
 Some things of note:
 
-- 2021 New England Revolution may be missing last `n`.
-- Montreal should probably be CF Montréal
-- "MLS Pool" changed to "Major League Soccer" for consistency
+-   2021 New England Revolution may be missing last `n`.
+-   Montreal should probably be CF Montréal
+-   "MLS Pool" changed to "Major League Soccer" for consistency
 
 There are other changes as well based on usfootballR package, etc.
 
@@ -364,10 +346,10 @@ It is `club_short` that I'd like to be consistent for a market, where `club_long
 
 How I tackled this:
 
-- Get a list of all the short names
-- Get a list of all the long names
-- Add them both to a Google Sheet and match them manually
-- Download that sheet and then use joins to fill gaps
+-   Get a list of all the short names
+-   Get a list of all the long names
+-   Add them both to a Google Sheet and match them manually
+-   Download that sheet and then use joins to fill gaps
 
 I used the following to get the names, though just to copy into a spreadsheet for a lot of manual research and work.
 
@@ -528,8 +510,6 @@ positions_fixed <- positions |>
 positions_fixed  
 ```
 
-
-
 ## Export the cleaned data
 
 Assign last cleaning dataframe and export
@@ -541,5 +521,3 @@ mls_salaries <- positions_fixed |>
 
 mls_salaries |> write_rds("data-processed/mls-salaries.rds")
 ```
-
-

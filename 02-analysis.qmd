@@ -5,7 +5,7 @@ title: "Analysis 2024"
 ## Goals of this notebook
 
 ::: callout-important
-The most recent data for this analysis was released in May 2024. The MLS will update salaries again after the summer transfer window, usually in September.
+This analysis is through the Fall 2024 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
 :::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
@@ -30,17 +30,31 @@ library(janitor)
 library(scales)
 library(ggrepel)
 library(DT)
+
+options(dplyr.summarise.inform = FALSE)
 ```
 
 
 ## Import
 
-Getting the cleaned data.
+### Cleaned salary data
 
 ```{r}
 salaries <- read_rds("data-processed/mls-salaries.rds")
 
 salaries |> glimpse()
+```
+
+### Team colors data
+
+You can see in [MLS colors](99-mls-colors.qmd) how I manually built these colors (and why).
+
+```{r}
+# download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv&&gid=1348329208", "data-processed/clubs-colors.csv")
+
+mls_colors_data <- read_csv("data-processed/clubs-colors.csv")
+
+mls_colors_data |> glimpse()
 ```
 
 ### Setting the most recent year of data
@@ -88,13 +102,13 @@ Teams with more than one player from top 10
 ```{r}
 sal_high_recent |> 
   filter(rank <= 10) |> 
-  count(club_short, sort = T)
+  count(club_short, sort = T) |> 
+  filter(n > 1)
 ```
 
+#### Data takeaway: Driussi 4th in  2024
 
-#### Data takeaway: Driussi 5th in early 2024
-
-For the early 2024 release, Austin FC's Sebastián Driussi is the 5th highest player in the MLS and Houston's Hector Herrera is the 8th highest-paid player.
+In the final salary release in 2024, Austin FC's Sebastián Driussi was the 4th highest player in the MLS and Houston's Hector Herrera is the 7th highest-paid player.
 
 Both Inter Miami and Toronto FC have two top 10 earners on their rosters.
 
@@ -167,45 +181,53 @@ sal_team_recent <- sal_team |> filter(year == recent_year)
 sal_team_recent |> head(10)
 ```
 
+#### Prep data for chart
+
 Let's round the numbers for our chart.
 
 ```{r}
 sal_team_recent_mil <- sal_team_recent |> 
-  mutate(total_millions = (total_compensation / 1000000) |> round(1))
+  mutate(total_millions = (total_compensation / 1000000) |> round(1)) |> 
+  left_join(
+    mls_colors_data |> select(club_long, favored_color, favored_nohex),
+    join_by(club_long)
+  ) |>
+  drop_na(favored_color)
 
 sal_team_recent_mil
 ```
 
-Let's chart this
+#### Let's chart this
 
 ```{r}
 #| label: fig-2024-team-salary
 #| fig-cap: "Messi drives Miami team salary"
 #| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Inter Miami and Toronto FC top the list."
 
-
 sal_team_recent_mil_plot <- sal_team_recent_mil |> 
-  filter(club_long != "Major League Soccer") |> 
-  ggplot(mapping = aes(
-    x = total_millions,
+  ggplot(aes(
+    x = total_compensation,
     y = club_long |> reorder(total_compensation)
   )) +
-  geom_bar(stat='identity') +
-  geom_text(aes(label = paste("$", as.character(total_millions), sep = "")), color = "white", hjust = 1.25) +
-  scale_x_continuous(labels = label_dollar()) +
+  geom_col(fill = sal_team_recent_mil$favored_color) +
+  scale_x_continuous(labels = label_dollar(scale_cut = cut_long_scale()),
+                     limits = c(0,45000000)) +
+  # geom_text(aes(label = paste("$", as.character(total_millions), sep = "")), color = "black", hjust = -.25) +
   labs(
     x = "Total team spending in $ millions",
     y = "",
-    title = "Messi makes Miami top MLS spender in 2023",
-    subtitle = str_wrap("Salaries includes each player's base salary plus all signing and guaranteed bonuses annualized over the term of the player's contract, including option years."),
+    title = "Messi makes Miami top MLS spender in 2024",
+    subtitle = str_wrap("Salaries includes each player's base salary plus all signing and guaranteed bonuses annualized over the term of the player's contract, including option years. San Diego FC won't play until the 2025 season."),
     caption = "By: Christian McDonald. Source: Major League Soccer Players Association"
   ) +
-    theme_minimal()
+  theme_minimal()
 
+ggsave("figures/team-salary-2024.png")
 
-ggsave("figures/team-salary-recent.png")
 
 ```
+
+
 
 ![](figures/team-salary-2024.png)
 
@@ -253,9 +275,11 @@ Visualizing all of them would be tricky. Let's do the top five over last five ye
 ```{r}
 sal_team_rank_top <- sal_team_rank |> 
   filter(rank <= 5,
-         year >= (as.numeric(recent_year) - 4))
+         year >= (as.numeric(recent_year) - 4)) |> 
+  left_join(mls_colors_data |> select(club_short, favored_color, favored_nohex), join_by(club_short))
 
-sal_team_rank_top
+sal_team_rank_top |> 
+  filter(club_short == "MIA")
 ```
 
 Peek at this a different way
@@ -268,59 +292,29 @@ sal_team_rank_top |>
 
 ### Let's visualze spending rank
 
-> This has to be adjusted when new data is added.
+We are using 
 
-I want to use a list of team-specific colors. I'm trying this manually first, based on the results of the chart. The colors were pulled [from here](https://teamcolorcodes.com/soccer/mls-team-color-codes/), though I wish I could instead join with a data package and pull from the team colors, but I haven't found one that is up-to-date.
-
-```{r}
-#| label: club_colors
-
-sal_team_rank_top |> count(club_short)
-
-club_color_list <- c(
-  "#80000A", # ATL
-  "#7CCDEF", # CHI
-  "#FE5000", # CIN or 003087
-  "#FEDD00", # CLB
-  "#00245D", # LA
-  "#C39E6D", # LAFC
-  "#F7B5CD", # MIA
-  "#CE0E2D", # NE
-  "#ECE83A", #NSH
-  # "#5D9741", # SEA
-  "#B81137" # TOR
-  # "#EF3E42" # DC
-  # "#00B140", # AUS
-)
-```
-
-
-And now the chart
 
 ```{r}
 #| label: chart_rank_t5
 
 sal_team_rank_top_plot <- sal_team_rank_top |> 
-  # filter()
-  ggplot(aes(x=year, y=rank, group = club_short)) +
-  geom_line(aes(color = club_short)) +
-  geom_point(aes(color = club_short, size = 3)) +
-  geom_label_repel(aes(label = club_short), size = 3) +
+  ggplot(aes(x=year, y=rank, color = favored_color, group = club_short)) +
+  geom_point(size = 3) +
+  geom_line() +
   scale_y_reverse() +
-  scale_colour_manual(values = club_color_list) +
-  scale_size_continuous(guide = "none") +
+  scale_color_identity(aes(color = favored_color)) +
+  geom_label_repel(aes(label = club_short), color = "black", size = 3) +
   labs(
     title = "Miami's spending was increasing before Messi",
-subtitle = str_wrap("The L.A. Galaxy are the only MLS team to rank as a top five spender in each of the past five years."),
+subtitle = str_wrap("Maimi and the L.A. Galaxy are the only MLS teams to rank as a top five spender in each of the past five years. Miami's spending rank was climbing before Lionel Messi joined in 2023."),
     color = "Club",
     x = NULL,
     y = "Spending Rank",
     caption = "By: Christian McDonald. Source: Major League Soccer Players Association"
   ) +
-  theme_minimal() +
-  guides(color = FALSE)
+  theme_minimal()
 
-# sal_team_rank_top_plot
 
 ggsave("figures/sal_team_rank.png")
 ```
@@ -337,6 +331,6 @@ sal_team_rank_top |>
 
 #### Data Takeaway: Miami and LA 
 
-Among the teams spending the most on their rosters over the past five years, Miami has ranked in the top five each year. The LA Galaxy and Toronto FC have been top spenders in four of the last five years.
+Both Miami and the LA Galaxy have been among the top spending teams over the past five years. Toronto FC have been top spenders in four of the last five years.
 
 

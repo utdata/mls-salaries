@@ -2,7 +2,7 @@
 
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
-This is updated through the early salary release in the 2024 season.
+This is updated through the 2024 season.
 
 The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2024](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
 
@@ -13,7 +13,10 @@ The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The 
 - Players that were paid the most over time and recently
 - Teams that spent the most over time and recently
 - Top spending teams over the past several years
-- Future consideration: Is it possible to compare club spending to season results? This will require more data and perhaps other packages.
+
+### Future considerations
+
+- Is it possible to compare club spending to season results? This will require more data and perhaps other packages.
 
 ## Summary of findings
 
@@ -25,14 +28,14 @@ The analysis was based on 2007-2024 player salary released by the [Major League 
 
 ### Other facts
 - Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed in July. They were the only players earning more than $10 million within a year.
-- In early 2024, Austin FC's Sebastián Driussi was the 5th highest player. In 2023, Driussi was 6th.
+- In 2024, Austin FC's Sebastián Driussi was the 4th highest player. In 2023, Driussi was 6th.
 - Inter Miami and Toronto FC had two top 10 earners on their rosters.
 - Given the historic signing of Lionel Messi, it is no surprise that Inter Miami have the highest team salary for the 2023 and 2024 seasons. Toronto has ranked second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
 - Looking at the most expensive rosters in the MLS over time, Toronto FC has been the top-spending team seven times.
 - Toronto FC and Inter Miami have been top five spenders in each of the past five years.
 
 
-![](figures/team-salary-recent.png)
+![](figures/team-salary-2024.png)
 
 ![](figures/sal_team_rank.png)
 
