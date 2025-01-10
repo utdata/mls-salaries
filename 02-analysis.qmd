@@ -222,11 +222,10 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
   ) +
   theme_minimal()
 
-ggsave("figures/team-salary-2024.png")
+ggsave("figures/team-salary-2024.png", width = 7, height = 7)
 
 
 ```
-
 
 
 ![](figures/team-salary-2024.png)
