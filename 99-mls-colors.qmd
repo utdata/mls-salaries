@@ -176,6 +176,14 @@ ggsave("figures/team-salary-2024-color-manual.png")
 
 ![](figures/team-salary-2024-color-manual.png)
 
+::: callout
+
+## Before manual
+
+Before I settled on the manual process above, I tried some other R packages that included color values for MLS teams. Those results are below.
+
+:::
+
 ## usfootballr package
 
 Here I try to use the colors from the usfootballr package and apply them to a chart.

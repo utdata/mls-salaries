@@ -132,7 +132,7 @@ For this one, the dollar signs came in as their own column, which was actually h
 #| label: import-2018
 
 s2018_imported <- read_csv(
-  "data-raw/tabula-2018-09-15-Salary-Information-Alphabetical.csv",
+  "data-original/tabula-2018-09-15-Salary-Information-Alphabetical.csv",
   col_names = c(
     "club_long",
     "last_name",
@@ -157,7 +157,7 @@ For this one, our salaries come in with `$` in the salary fields, and also with 
 ```{r}
 #| label: import-2019
 s2019_imported <- read_csv(
-  "data-raw/tabula-2019-Salary-List-Fall-Release-FINAL-Salary-List-Fall-Release-MLS.csv",
+  "data-original/tabula-2019-Salary-List-Fall-Release-FINAL-Salary-List-Fall-Release-MLS.csv",
   col_names = c(
     "club_long",
     "last_name",
@@ -182,7 +182,7 @@ s2019_imported |> head()
 
 ```{r}
 s2020_imported <- read_csv(
-  "data-raw/tabula-2020-Fall-Winter-Salary-List-alphabetical.csv",
+  "data-original/tabula-2020-Fall-Winter-Salary-List-alphabetical.csv",
   col_names = c(
     "last_name",
     "first_name",
@@ -207,7 +207,7 @@ s2020_imported |> head()
 
 ```{r}
 s2021_imported <- read_csv(
-  "data-raw/tabula-2021-MLSPA-Fall-Salary-release (1).csv",
+  "data-original/tabula-2021-MLSPA-Fall-Salary-release (1).csv",
   col_names = c(
     "club_long",
     "last_name",
@@ -233,7 +233,7 @@ s2021_imported |> head()
 ### 2022 data
 
 ```{r}
-s2022_imported <- read_excel("data-raw/MLS Salary 2022.xlsx") |> clean_names() |> 
+s2022_imported <- read_excel("data-original/MLS Salary 2022.xlsx") |> clean_names() |> 
   add_column(year = "2022", .before = "first_name") |> 
   rename(position = position_s,
          club_long = club)
@@ -243,10 +243,10 @@ s2022_imported |> glimpse()
 
 ### 2023 data
 
-The first version for 2023 was available as an Excel file. However, there was an update in September of 2023 that was available for download as a PDF (saved in data-raw) but also published as an HTML table that I was able to use a browser-based scraper to create an Excel file. It is this Excel file that I'm using.
+The first version for 2023 was available as an Excel file. However, there was an update in September of 2023 that was available for download as a PDF (saved in data-original) but also published as an HTML table that I was able to use a browser-based scraper to create an Excel file. It is this Excel file that I'm using.
 
 ```{r}
-s2023_imported <- read_excel("data-raw/2023-Salary-Report-as-of-Sept-15-2023.xlsx") |> clean_names() |> 
+s2023_imported <- read_excel("data-original/2023-Salary-Report-as-of-Sept-15-2023.xlsx") |> clean_names() |> 
   add_column(year = "2023", .before = "first_name") |> 
   rename(position = position_s,
          club_long = club)
@@ -259,8 +259,7 @@ s2023_imported |> glimpse()
 The 2024 data was downloaded from MLSPA in Jan. 2025 but the file appears to be a Oct. 24, 2024 export, being after the official Sept. 13th release of the fall report.
 
 ```{r}
-s2024_imported <- read_csv("data-raw/Salary-Release-FALL-2024_241024_164547.txt") |> clean_names() |> 
-  add_column(year = "2024", .before = "fname") |>
+s2024_imported <- read_csv("data-original/Salary-Release-FALL-2024_241024_164547.txt") |> clean_names() |> 
   rename(
     first_name = fname,
     last_name = lname,
@@ -268,11 +267,30 @@ s2024_imported <- read_csv("data-raw/Salary-Release-FALL-2024_241024_164547.txt"
     guaranteed_compensation = cy_guaranteed_comp,
     base_salary = cy_base_salary
   ) |> 
+  add_column(year = "2024", .before = "first_name") |>
   mutate(across(7:8, parse_number)) |> 
   select(-num)
 
 s2024_imported |> glimpse()
 ```
+
+### 2025 data
+
+In June 2025 the MLSPA released their initial salary report "as of May 23, 2025". The data was scraped from the online table, though I did also download the PDF. 
+
+```{r}
+s2025_imported <- read_excel("data-original/2025-Spring-Salary-Release.xlsx") |> 
+  clean_names() |> 
+  rename(
+    club_long = club,
+    position = position_s
+  ) |> 
+  add_column(year = "2025", .before = "first_name")
+
+
+s2025_imported
+```
+
 
 ## Merge non-dip data
 
@@ -280,7 +298,7 @@ The tabula and excel data both use long club names, so I'll put those together.
 
 ```{r}
 non_dip_data <- s2018_imported |> 
-  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported, s2024_imported)
+  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported, s2024_imported, s2025_imported)
 
 non_dip_data |> glimpse()
 ```
@@ -451,7 +469,7 @@ binded |>
 # binded |> distinct(position) |> pull() |> clipr::write_clip()
 ```
 
-It's clear some cleanup is needed, and will take some decisions. I'm going to go with letter designations with hyphens when necessary.
+It's clear some cleanup is needed, and will take some decisions. I'm going to go with letter designations with hyphens when necessary. Some of these are subjective or don't make sense, so I just have to make judgment calls.
 
 ```{r}
 positions <- binded |> 
@@ -464,33 +482,34 @@ positions <- binded |>
       # "D" ~ "",
       # "GK" ~ "",
       # "D-M" ~ "",
-      # "F-D" ~ "",
+      "F-D" ~ "D", # Bobby Burling was a defender
       # "F-M" ~ "",
       # "M-D" ~ "",
       # "M-F" ~ "",
-      # "D-F" ~ "",
+      "D-F" ~ "D", # James Riley
       "MF" ~ "M-F",
       "M/F" ~ "M-F",
       "M/D" ~ "M-D",
       "D/M" ~ "D-M",
-      "D/F" ~ "D-F",
-      "F/M" ~ "F-M",
+      "D/F" ~ "F", # Andrew Wenger
+      "F/M" ~ "M-F",
       # "NA" ~ "",
-      "Right Wing" ~ "F",
-      "Center-back" ~ "D",
-      "Defensive Midfield" ~ "D-M",
       "Attacking Midfield" ~ "M-F",
+      "Center-back" ~ "D",
+      "Center-Back" ~ "D",
       "Center Forward" ~ "F",
-      "Left-back" ~ "D",
       "Central Midfield" ~ "M",
-      "Forward" ~ "F",
-      "Right-back" ~ "F",
-      "Left Wing" ~ "F",
-      "Goalkeeper" ~ "GK",
-      "Left Midfield" ~ "M",
-      "Right Midfield" ~ "M",
-      "Midfielder" ~ "M",
       "Defender" ~ "D",
+      "Defensive Midfield" ~ "D-M",
+      "Forward" ~ "F",
+      "Goalkeeper" ~ "GK",
+      "Left-back" ~ "D",
+      "Left Wing" ~ "M-F",
+      "Left Midfield" ~ "M",
+      "Midfielder" ~ "M",
+      "Right-back" ~ "F",
+      "Right Midfield" ~ "M",
+      "Right Wing" ~ "M-F",
       .default = position
     )
   )
@@ -498,6 +517,7 @@ positions <- binded |>
 positions |> 
   count(position, position_new)
 ```
+
 
 Clean up the columns
 

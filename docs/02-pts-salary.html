@@ -156,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./02-analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analysis 2024</span></a>
+ <span class="menu-text">Analysis 2025</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -219,11 +219,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This notebook is just exploratory and a work in progress. There are no particular findings at this time.</p>
+</div>
+</div>
 <section id="goal-of-this-notebook" class="level2">
 <h2 class="anchored" data-anchor-id="goal-of-this-notebook">Goal of this notebook</h2>
-<blockquote class="blockquote">
-<p>This notebook is a work in progress. There are no particular findings at this time.</p>
-</blockquote>
 <p>Does spending more on players ensure a better season? I want to compare season points to salaries spent by MLS teams.</p>
 <p>I thought I had found some <a href="https://www.kaggle.com/datasets/josephvm/major-league-soccer-dataset?resource=download&amp;select=all_tables.csv">standings data on kaggle</a>, but it only goes through part of 2021.</p>
 <p>I worked it out using 2020 data, but there is nothing to really show.</p>
@@ -240,14 +250,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="download">Download</h2>
 <p>I scraped the <a href="https://www.mlssoccer.com/standings/2023/conference#season=2023&amp;live=true">MLS 2023 standings</a> and put them in a <a href="https://docs.google.com/spreadsheets/d/1KxUowFOoDYl-brTsBqIAgUqLnvCcPXB4fM5CQkRC1p4/edit?usp=sharing">Google Sheet</a> where I hand-edited some columns to clean it up. (It was just quicker because of some non-consisten patterns in the scrapped team name.)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv"</span>, <span class="st">"data-raw/mls-standings-2023.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv"</span>, <span class="st">"data-original/mls-standings-2023.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>I haven’t used this as of yet.</p>
 </section>
 <section id="importing" class="level2">
 <h2 class="anchored" data-anchor-id="importing">Importing</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mls_standings <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-raw/all_tables.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>()</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mls_standings <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data-original/all_tables.csv"</span>) <span class="sc">|&gt;</span> <span class="fu">clean_names</span>()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mls_salaries <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="st">"data-processed/mls-salaries.rds"</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>mls_standings_2023 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>

@@ -2,7 +2,7 @@
 
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
-This is updated through the 2024 season.
+This is updated through the spring 2025 salart release.
 
 The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2024](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
 
@@ -27,15 +27,14 @@ Upon his signing on July 2023, Lionel Messi became the highest paid player in th
 The analysis was based on 2007-2024 player salary released by the [Major League Soccer Player's Association](https://mlsplayers.org/resources/salary-guide). It was not adjusted for inflation.
 
 ### Other facts
-- Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed in July. They were the only players earning more than $10 million within a year.
-- In 2024, Austin FC's Sebastián Driussi was the 4th highest player. In 2023, Driussi was 6th.
-- Inter Miami and Toronto FC had two top 10 earners on their rosters.
-- Given the historic signing of Lionel Messi, it is no surprise that Inter Miami have the highest team salary for the 2023 and 2024 seasons. Toronto has ranked second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
+
+- Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed that July. They were the only players earning more than $10 million within a year, and that still holds true in 2025.
+- It is no surprise that Inter Miami have had the highest team salary since 2023. Toronto has continued to rank second, with Lorenzo Insigne being a huge part of their salary spend.
+- In 2025, Inter Miami had three of the top 10 MLS earners on their roster. Toronto FC had two.
+- In 2025, 21 teams spent less on their total roster than Miami spent on Messi.
 - Looking at the most expensive rosters in the MLS over time, Toronto FC has been the top-spending team seven times.
-- Toronto FC and Inter Miami have been top five spenders in each of the past five years.
 
-
-![](figures/team-salary-2024.png)
+![](figures/team-salary-recent.png)
 
 ![](figures/sal_team_rank.png)
 

@@ -1,11 +1,11 @@
 ---
-title: "Analysis 2024"
+title: "Analysis 2025"
 ---
 
 ## Goals of this notebook
 
 ::: callout-important
-This analysis is through the Fall 2024 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+This analysis is through the Spring 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
 :::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
@@ -32,6 +32,7 @@ library(ggrepel)
 library(DT)
 
 options(dplyr.summarise.inform = FALSE)
+options(scipen = 999)
 ```
 
 
@@ -62,7 +63,7 @@ mls_colors_data |> glimpse()
 I'm creating an object called `recent_year` because at some point I'll have new data and might want to just change the year.
 
 ```{r}
-recent_year <- "2024"
+recent_year <- "2025"
 ```
 
 
@@ -106,13 +107,11 @@ sal_high_recent |>
   filter(n > 1)
 ```
 
-#### Data takeaway: Driussi 4th in  2024
+#### Data takeaway: More than Messi
 
-In the final salary release in 2024, Austin FC's Sebastián Driussi was the 4th highest player in the MLS and Houston's Hector Herrera is the 7th highest-paid player.
+Inter Miami has three of the top 10 earners, while Toronto FC has two.
 
-Both Inter Miami and Toronto FC have two top 10 earners on their rosters.
-
-### Difference with just base pay in 2024?
+### Difference with just base pay in 2025?
 
 This looks at just the base salary as opposed to total compensation. No great changes at the top of the list.
 
@@ -124,6 +123,16 @@ sal_high_base <- salaries |>
 sal_high_base |> filter(year == recent_year, base_salary >= 2000000) 
 ```
 
+### Hightest paid on Austin FC
+
+Since we are in Austin, let's see look at their 2025 roster spending.
+
+```{r}
+sal_high_recent |> 
+  filter(club_short == "ATX")
+```
+
+Owen Wolff has to be the best value on the team given he makes just over $220,000 and is a can't-drop.
 
 ## Team salaries
 
@@ -168,7 +177,7 @@ top_sal_team_yr |>
 
 #### Data takeaways: Toronto historically spends high
 
-Looking at the most expensive rosters in the MLS of time, Toronto FC has six of the top 10 highest entries. Over the past 17 years, Toronto has been the top spending team seven times, or 40% of the time. The L.A. Galaxy is next with five highest-spending years.
+Looking at the most expensive rosters in the MLS of time, Toronto FC has seen of the top 10 highest entries. Over the past 17 years, Toronto has been the top spending team seven times, or 40% of the time. The L.A. Galaxy is next with five highest-spending years.
 
 ### Highest salaries this year
 
@@ -200,7 +209,7 @@ sal_team_recent_mil
 #### Let's chart this
 
 ```{r}
-#| label: fig-2024-team-salary
+#| label: fig-team-salary-recent
 #| fig-cap: "Messi drives Miami team salary"
 #| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Inter Miami and Toronto FC top the list."
 
@@ -216,19 +225,19 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
   labs(
     x = "Total team spending in $ millions",
     y = "",
-    title = "Messi makes Miami top MLS spender in 2024",
-    subtitle = str_wrap("Salaries includes each player's base salary plus all signing and guaranteed bonuses annualized over the term of the player's contract, including option years. San Diego FC won't play until the 2025 season."),
+    title = "Messi makes Miami top MLS spender",
+    subtitle = str_wrap("Salaries includes each player's base salary plus all signing and guaranteed bonuses annualized over the term of the player's contract, including option years."),
     caption = "By: Christian McDonald. Source: Major League Soccer Players Association"
   ) +
   theme_minimal()
 
-ggsave("figures/team-salary-2024.png", width = 7, height = 7)
+ggsave("figures/team-salary-recent.png", width = 7, height = 7)
 
 
 ```
 
 
-![](figures/team-salary-2024.png)
+![](figures/team-salary-recent.png)
 
 One more look to see how many high-paid players on each team.
 
@@ -242,6 +251,32 @@ sal_high_recent |>
 
 Given the historic signing of Lionel Messi in 2023, it is no surprise that Inter Miami have the highest team salary for the 2024 season. Toronto ranks second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
 
+### More than Messi
+
+Which teams pay their entire team less than what the highest player makes?
+
+```{r}
+top_player <- sal_high_recent |> 
+  filter(!is.na(club_short)) |> 
+  filter(rank == 1)
+
+top_player_name <- 
+  paste(top_player$first_name, top_player$last_name)
+
+highest_comp <- top_player |> 
+  pull(compensation)
+
+more_than_top <- sal_high_recent |> 
+  filter(!is.na(club_short)) |> 
+  group_by(club_short) |> 
+  summarise(total_comp = sum(compensation, na.rm = T)) |> 
+  filter(total_comp < highest_comp)
+
+more_than_top_nrow <- more_than_top |> nrow()
+
+```
+
+In `r recent_year` the highest paid player was `r top_player_name` making `r scales::dollar(highest_comp)`. There are `r more_than_top_nrow` teams that pay less than that for their entire roster.
 
 ### Team spending over time
 

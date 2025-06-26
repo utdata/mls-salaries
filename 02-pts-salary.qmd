@@ -2,9 +2,13 @@
 title: "Points vs salaries"
 ---
 
-## Goal of this notebook
+::: callout-warning
 
-> This notebook is a work in progress. There are no particular findings at this time.
+This notebook is just exploratory and a work in progress. There are no particular findings at this time.
+
+:::
+
+## Goal of this notebook
 
 Does spending more on players ensure a better season? I want to compare season points to salaries spent by MLS teams.
 
@@ -29,7 +33,7 @@ options(dplyr.summarise.inform = FALSE)
 I scraped the [MLS 2023 standings](https://www.mlssoccer.com/standings/2023/conference#season=2023&live=true) and put them in a [Google Sheet](https://docs.google.com/spreadsheets/d/1KxUowFOoDYl-brTsBqIAgUqLnvCcPXB4fM5CQkRC1p4/edit?usp=sharing) where I hand-edited some columns to clean it up. (It was just quicker because of some non-consisten patterns in the scrapped team name.)
 
 ```{r}
-download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv", "data-raw/mls-standings-2023.csv")
+download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv", "data-original/mls-standings-2023.csv")
 ```
 
 I haven't used this as of yet.
@@ -40,7 +44,7 @@ I haven't used this as of yet.
 #| label: import
 #| message: false
 
-mls_standings <- read_csv("data-raw/all_tables.csv") |> clean_names()
+mls_standings <- read_csv("data-original/all_tables.csv") |> clean_names()
 mls_salaries <- read_rds("data-processed/mls-salaries.rds")
 mls_standings_2023 <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQwM9NKGZEc5CKVR2z7IoEUq0nij77xNu6kz8Rua4JFNfqt0sOe5RaE8gwW2lZ0nSsAFH5aCNUQJrcV/pub?output=csv")
 ```
