@@ -2,7 +2,7 @@
 
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
-This is updated through the spring 2025 salart release.
+This is updated through the spring 2025 salary release.
 
 The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2024](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
 
