@@ -2,11 +2,13 @@
 
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
-This is updated through the spring 2025 salary release.
+::: callout-important
+This analysis is current through the Spring 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+:::
 
-The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis 2024](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
+The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
 
-The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The published notebooks are on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/).
+The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The notebooks are published on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/) and [Github Pages](https://utdata.github.io/mls-salaries/).
 
 ### Questions to answer
 
@@ -28,7 +30,7 @@ The analysis was based on 2007-2024 player salary released by the [Major League 
 
 ### Other facts
 
--   Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed that July. They were the only players earning more than \$10 million within a year, and that still holds true in 2025.
+-   Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.5 million before Messi was signed that July. They were the only players earning more than \$10 million within a year, and that still holds true in 2025. (Insigne was later released by Toronto on July 1, 2025, after the spring salary release.)
 -   It is no surprise that Inter Miami have had the highest team salary since 2023. Toronto has continued to rank second, with Lorenzo Insigne being a huge part of their salary spend.
 -   In 2025, Inter Miami had three of the top 10 MLS earners on their roster. Toronto FC had two.
 -   In 2025, 21 teams spent less on their total roster than Miami spent on Messi.

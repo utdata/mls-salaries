@@ -1,11 +1,11 @@
 ---
-title: "Analysis 2025"
+title: "Analysis"
 ---
 
 ## Goals of this notebook
 
 ::: callout-important
-This analysis is through the Spring 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+This analysis is current through the Spring 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
 :::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
