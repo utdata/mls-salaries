@@ -4,7 +4,6 @@ project:
   - "01*.qmd"
   - "*.qmd"
   - "!archived/"
-  output-dir: docs
 
 website:
   title: "MLS Salaries"
