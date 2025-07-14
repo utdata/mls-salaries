@@ -168,7 +168,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="mls-salaries" class="level1">
 <h1>MLS Salaries</h1>
 <p>This is an analysis of MLS Salary data from the <a href="https://mlsplayers.org/resources/salary-guide">MLS Players Association</a>. They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.</p>
-<p>This is updated through the spring 2025 salart release.</p>
+<p>This is updated through the spring 2025 salary release.</p>
 <p>The main notebooks are <a href="./01-cleaning.html">Cleaning</a> and <a href="./02-analysis.html">Analysis 2024</a>. There are some other exploratory notebooks that are not yet included in findings below.</p>
 <p>The code is public on <a href="https://github.com/utdata/rwd-mls-salaries">Github</a>. The published notebooks are on <a href="https://christianmcdonald.quarto.pub/mls-salaries/">Quarto Pub</a>.</p>
 <section id="questions-to-answer" class="level3">
@@ -307,7 +307,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/utdata\.github\.io\/mls-salaries\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

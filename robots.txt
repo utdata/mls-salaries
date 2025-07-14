@@ -1,1 +1,1 @@
-Sitemap: https://christianmcdonald.quarto.pub/mls-salaries/sitemap.xml
+Sitemap: https://utdata.github.io/mls-salaries/sitemap.xml
