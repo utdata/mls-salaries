@@ -245,9 +245,6 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
   theme_minimal()
 
 ggsave("figures/team-salary-recent.png", width = 7, height = 7)
-
-
-sal_team_recent_mil_plot
 ```
 
 
