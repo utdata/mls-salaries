@@ -4,6 +4,7 @@ project:
   - "01*.qmd"
   - "*.qmd"
   - "!archived/"
+  - "!99*"
 
 website:
   title: "MLS Salaries"
@@ -16,7 +17,6 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles.css
     toc: true
     df-print: paged
     code-overflow: wrap

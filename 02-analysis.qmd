@@ -69,12 +69,25 @@ recent_year <- "2025"
 
 ## Players with highest salaries
 
-### Over all time
+### Of all time
 
-A searchable table of all players, all time.
+Looking at total compensation, these are all the players who have made $5M or more in a single season.
+
+```{r}
+salaries |> 
+  arrange(compensation |> desc()) |> 
+  select(!c(club_long, conference)) |> 
+  filter(compensation >= 5000000)
+```
+
+
+### Since 2015
+
+A searchable table of MLS players since 2015. (We can't do this for all players because the table gets too large to publish.)
 
 ```{r}
 sal_high <- salaries |> 
+  filter(year >= 2015) |> 
   arrange(compensation |> desc()) |> 
   select(!c(club_long, conference))
 
@@ -220,7 +233,7 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
   )) +
   geom_col(fill = sal_team_recent_mil$favored_color) +
   scale_x_continuous(labels = label_dollar(scale_cut = cut_long_scale()),
-                     limits = c(0,45000000)) +
+                     limits = c(0,50000000)) +
   # geom_text(aes(label = paste("$", as.character(total_millions), sep = "")), color = "black", hjust = -.25) +
   labs(
     x = "Total team spending in $ millions",
@@ -234,6 +247,7 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
 ggsave("figures/team-salary-recent.png", width = 7, height = 7)
 
 
+sal_team_recent_mil_plot
 ```
 
 
