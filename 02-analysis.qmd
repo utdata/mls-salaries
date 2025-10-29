@@ -5,7 +5,7 @@ title: "Analysis"
 ## Goals of this notebook
 
 ::: callout-important
-This analysis is current through the Spring 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+This analysis is current through the Fall 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
 :::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
@@ -345,14 +345,14 @@ We are using
 
 sal_team_rank_top_plot <- sal_team_rank_top |> 
   ggplot(aes(x=year, y=rank, color = favored_color, group = club_short)) +
-  geom_point(size = 3) +
+  geom_point(size = 4) +
   geom_line() +
   scale_y_reverse() +
   scale_color_identity(aes(color = favored_color)) +
   geom_label_repel(aes(label = club_short), color = "black", size = 3) +
   labs(
     title = "Miami's spending was increasing before Messi",
-subtitle = str_wrap("Maimi and the L.A. Galaxy are the only MLS teams to rank as a top five spender in each of the past five years. Miami's spending rank was climbing before Lionel Messi joined in 2023."),
+subtitle = str_wrap("Maimi is the only MLS teams to rank as a top five spender in each of the past five years. Miami's spending rank was climbing before Lionel Messi joined in 2023."),
     color = "Club",
     x = NULL,
     y = "Spending Rank",
@@ -374,8 +374,8 @@ sal_team_rank_top |>
 ```
 
 
-#### Data Takeaway: Miami and LA 
+#### Data Takeaway: Miami and the LAs
 
-Both Miami and the LA Galaxy have been among the top spending teams over the past five years. Toronto FC have been top spenders in four of the last five years.
+Only Miami has been among the top spending teams over the past five years. The two L.A. teams are the only teams to rank in the top 5 for four years.
 
 

@@ -13,6 +13,7 @@ Our data all comes from the [MLS Players Association](https://mlsplayers.org/res
 -   The 2022 is available as an Excel file. It did need cleaning.
 -   The May version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
 -   The early 2024 version was released as a CSV and an HTML table. I scraped the HTML table and created an Excel file because it had a player not listed in the csv file.
+-   The 2025 data was release as a PDF and HTML table, which I scraped.
 
 Once all the data was imported, I still needed to do some normalization:
 
@@ -276,21 +277,28 @@ s2024_imported |> glimpse()
 
 ### 2025 data
 
-In June 2025 the MLSPA released their initial salary report "as of May 23, 2025". The data was scraped from the online table, though I did also download the PDF. 
+> Working on fall 2025 update. Downloaded as a csv (but also as pdf).
+
+Fall 2025 data was released Oct. 29th by the MLSPA. The data was scraped from the online table, though I did also download the PDF.
 
 ```{r}
-s2025_imported <- read_excel("data-original/2025-Spring-Salary-Release.xlsx") |> 
-  clean_names() |> 
-  rename(
-    club_long = club,
-    position = position_s
-  ) |> 
-  add_column(year = "2025", .before = "first_name")
+s2025_imported <- read_csv(
+  "data-original/2025-fall-mlsplayers.csv",
+  skip = 1,
+  col_names = c(
+    "first_name",
+    "last_name",
+    "club_long",
+    "position",
+    "base_salary",
+    "guaranteed_compensation"
+  )
+) |> 
+  add_column(year = "2025", .before = "first_name") |> 
+  mutate(across(base_salary:guaranteed_compensation, parse_number))
 
-
-s2025_imported
+s2025_imported |> glimpse()
 ```
-
 
 ## Merge non-dip data
 
