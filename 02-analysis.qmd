@@ -352,7 +352,7 @@ sal_team_rank_top_plot <- sal_team_rank_top |>
   geom_label_repel(aes(label = club_short), color = "black", size = 3) +
   labs(
     title = "Miami's spending was increasing before Messi",
-subtitle = str_wrap("Maimi is the only MLS teams to rank as a top five spender in each of the past five years. Miami's spending rank was climbing before Lionel Messi joined in 2023."),
+subtitle = str_wrap("Maimi is the only MLS team to rank as a top five spender in each of the past five years. Miami's spending rank was climbing before Lionel Messi joined in 2023."),
     color = "Club",
     x = NULL,
     y = "Spending Rank",
@@ -362,6 +362,7 @@ subtitle = str_wrap("Maimi is the only MLS teams to rank as a top five spender i
 
 
 ggsave("figures/sal_team_rank.png")
+ggsave("figures/sal_team_rank.jpg")
 ```
 
 ![](figures/sal_team_rank.png)

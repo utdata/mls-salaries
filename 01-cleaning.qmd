@@ -515,7 +515,7 @@ positions <- binded |>
       "Left Wing" ~ "M-F",
       "Left Midfield" ~ "M",
       "Midfielder" ~ "M",
-      "Right-back" ~ "F",
+      "Right-back" ~ "D",
       "Right Midfield" ~ "M",
       "Right Wing" ~ "M-F",
       .default = position
