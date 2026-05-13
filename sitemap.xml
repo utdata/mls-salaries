@@ -2,18 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://utdata.github.io/mls-salaries/index.html</loc>
-    <lastmod>2025-10-29T19:57:46.772Z</lastmod>
-  </url>
-  <url>
-    <loc>https://utdata.github.io/mls-salaries/02-analysis.html</loc>
-    <lastmod>2025-10-29T19:44:15.882Z</lastmod>
+    <lastmod>2026-05-13T22:01:56.850Z</lastmod>
   </url>
   <url>
     <loc>https://utdata.github.io/mls-salaries/01-cleaning.html</loc>
-    <lastmod>2026-01-16T13:36:28.634Z</lastmod>
+    <lastmod>2026-05-13T21:32:35.959Z</lastmod>
   </url>
   <url>
-    <loc>https://utdata.github.io/mls-salaries/02-pts-salary.html</loc>
-    <lastmod>2025-07-14T19:24:33.947Z</lastmod>
+    <loc>https://utdata.github.io/mls-salaries/02-analysis.html</loc>
+    <lastmod>2026-05-13T21:56:22.791Z</lastmod>
   </url>
 </urlset>
