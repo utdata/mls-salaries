@@ -232,7 +232,8 @@ sal_team_recent_mil_plot <- sal_team_recent_mil |>
   )) +
   geom_col(fill = sal_team_recent_mil$favored_color) +
   scale_x_continuous(labels = label_dollar(scale_cut = cut_long_scale()),
-                     limits = c(0,50000000)) +
+                     # limits = c(0,50000000)
+                     ) +
   # geom_text(aes(label = paste("$", as.character(total_millions), sep = "")), color = "black", hjust = -.25) +
   labs(
     x = "Total team spending in $ millions",
