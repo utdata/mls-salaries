@@ -5,7 +5,7 @@ title: "Analysis"
 ## Goals of this notebook
 
 ::: callout-important
-This analysis is current through the Fall 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+This analysis is current through the Spring 2026 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide). While released on May 12, the data is for all MLS players under contract as of April 16, 2026.
 :::
 
 We'll explore MLS Salaries through history. We'll start with the most recent data, then look back historically. A couple of questions that come to mind:
@@ -63,7 +63,7 @@ mls_colors_data |> glimpse()
 I'm creating an object called `recent_year` because at some point I'll have new data and might want to just change the year.
 
 ```{r}
-recent_year <- "2025"
+recent_year <- "2026"
 ```
 
 
@@ -96,9 +96,9 @@ sal_high |> datatable()
 
 #### Data takeaway: Messi money
 
-Upon his signing on July 15, 2023, Lionel Messi became the highest paid player in the history of the MLS with a total compensation of \$20.4 million. Lorenzo Insigne of Toronto was second at \$15.5 million, the only other player earning more than $10 million within a year.
+Upon his signing on July 15, 2023, Lionel Messi became the highest paid player in the history of the MLS with a total compensation of \$20.4 million. Lorenzo Insigne of Toronto was second at the time with \$15.5 million, the only other player earning more than $10 million within a year.
 
-### In most recent year
+### In most recent year: `r recent_year`
 
 ```{r}
 sal_high_recent <- salaries |> 
@@ -122,9 +122,9 @@ sal_high_recent |>
 
 #### Data takeaway: More than Messi
 
-Inter Miami has three of the top 10 earners, while Toronto FC has two.
+Inter Miami and Nashville both have two players in the list of top 10 earners.
 
-### Difference with just base pay in 2025?
+### Difference with just base pay in `r recent_year`?
 
 This looks at just the base salary as opposed to total compensation. No great changes at the top of the list.
 
@@ -138,14 +138,12 @@ sal_high_base |> filter(year == recent_year, base_salary >= 2000000)
 
 ### Hightest paid on Austin FC
 
-Since we are in Austin, let's see look at their 2025 roster spending.
+Since we are in Austin, let's look at their roster.
 
 ```{r}
 sal_high_recent |> 
   filter(club_short == "ATX")
 ```
-
-Owen Wolff has to be the best value on the team given he makes just over $220,000 and is a can't-drop.
 
 ## Team salaries
 
@@ -153,7 +151,7 @@ We'll get per-year salaries by team, then look at just this year.
 
 ### Highest team salaries over time
 
-First get the total compensation for each team in each year.
+First get the total compensation for each team in each year. These are only teams who spend more than $20 million.
 
 ```{r}
 sal_team <- salaries |> 
@@ -197,10 +195,11 @@ Looking at the most expensive rosters in the MLS of time, Toronto FC has seen of
 And let's look at this year.
 
 ```{r}
-sal_team_recent <- sal_team |> filter(year == recent_year)
+sal_team_recent <- sal_team |> filter(year == recent_year) |> 
+  filter(club_long != "Major League Soccer")
 
 # peek
-sal_team_recent |> head(10)
+sal_team_recent
 ```
 
 #### Prep data for chart
@@ -224,7 +223,7 @@ sal_team_recent_mil
 ```{r}
 #| label: fig-team-salary-recent
 #| fig-cap: "Messi drives Miami team salary"
-#| fig-alt: "Bar chart showing MLS team salaries from highest to lowest. Inter Miami and Toronto FC top the list."
+#| fig-alt: "Bar chart showing MLS team salaries from highest to lowest."
 
 sal_team_recent_mil_plot <- sal_team_recent_mil |> 
   ggplot(aes(
@@ -257,10 +256,6 @@ sal_high_recent |>
   filter(compensation >= 5000000) |> 
   count(club_short, sort = T)
 ```
-
-#### Data Takeaway: Miami, Toronto tops
-
-Given the historic signing of Lionel Messi in 2023, it is no surprise that Inter Miami have the highest team salary for the 2024 season. Toronto ranks second on the power of having two players making over $5 million, Lorenzo Insigne and Federico Bernardeschi.
 
 ### More than Messi
 
@@ -332,12 +327,11 @@ Peek at this a different way
 ```{r}
 sal_team_rank_top |> 
   select(-total_comp) |> 
-  pivot_wider(names_from = year, values_from = rank)
+  pivot_wider(names_from = year, values_from = rank) |> 
+  select(!c(club_long, favored_color, favored_nohex))
 ```
 
 ### Let's visualze spending rank
-
-We are using 
 
 
 ```{r}

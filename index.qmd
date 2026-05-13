@@ -3,10 +3,10 @@
 This is an analysis of MLS Salary data from the [MLS Players Association](https://mlsplayers.org/resources/salary-guide). They have published the data since 2007, but formats vary widely. There are other cleaning challenges tackled as well.
 
 ::: callout-important
-This analysis is current through the Fall 2025 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
+This analysis is current through the Spring 2026 data release by the [MLSPA](https://mlsplayers.org/resources/salary-guide).
 :::
 
-The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis](02-analysis.qmd). There are some other exploratory notebooks that are not yet included in findings below.
+The main notebooks are [Cleaning](01-cleaning.qmd) and [Analysis](02-analysis.qmd).
 
 The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The notebooks are published on [Quarto Pub](https://christianmcdonald.quarto.pub/mls-salaries/) and [Github Pages](https://utdata.github.io/mls-salaries/).
 
@@ -16,24 +16,20 @@ The code is public on [Github](https://github.com/utdata/rwd-mls-salaries). The 
 -   Teams that spent the most over time and recently
 -   Top spending teams over the past several years
 
-### Future considerations
-
--   Is it possible to compare club spending to season results? This will require more data and perhaps other packages.
-
 ## Summary of findings
 
 ### Inter Miami was already spending before Messi
 
 Upon his signing on July 2023, Lionel Messi became the highest paid player in the history of the Major League Soccer with a total compensation over \$20 million. However, investing in players was not a new concept for Inter Miami CF, as they had been among the top spending teams since 2020, according to an analysis of player salaries.
 
-The analysis was based on 2007-2025 player salary released by the [Major League Soccer Player's Association](https://mlsplayers.org/resources/salary-guide). It was not adjusted for inflation.
+The analysis was based on 2007-2026 player salary released by the [Major League Soccer Player's Association](https://mlsplayers.org/resources/salary-guide). It was not adjusted for inflation.
 
 ### Other facts
 
 -   Heung-min Son came to LAFC in 2025 with the 2nd highest player base salary in MLS history at \$10.3 million. His total compensation is less than Lorenzo Insigne (Toronto) in 2023 and 2024.
 -   Lorenzo Insigne of Toronto started the 2023 season as the highest paid player at \$15.4 million total compensation before Messi was signed that July. They were the only players earning more than \$10 million within a year, and that still held true in early 2025. Insigne was later released by Toronto on July 1, 2025, after the spring salary release.
 -   It is no surprise that Inter Miami have had the highest team salary since 2023. LAFC supplanted Toronto as the 2nd highest spender after spring 2025 with the arrival of Son and departure of Insigne.
--   In 2025, 20 teams spent less on their total roster than Miami spent on Messi.
+-   In 2026, 28 teams spent less on their total roster than Miami spent on Messi.
 -   Looking at the most expensive rosters in the MLS over time, Toronto FC has been the top-spending team seven times.
 
 ![](figures/team-salary-recent.png)

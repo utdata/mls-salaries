@@ -14,6 +14,7 @@ Our data all comes from the [MLS Players Association](https://mlsplayers.org/res
 -   The May version of 2023 data came in Excel, but the September 2023 update was published as a PDF and also as an HTML table that I was able to collect through browser-based scraper.
 -   The early 2024 version was released as a CSV and an HTML table. I scraped the HTML table and created an Excel file because it had a player not listed in the csv file.
 -   The 2025 data was release as a PDF and HTML table, which I scraped.
+- The 2026 Spring data was released on May 12, 2026 as a PDF (I saved) and an HTML table (I scraped and saved as csv.)
 
 Once all the data was imported, I still needed to do some normalization:
 
@@ -21,6 +22,15 @@ Once all the data was imported, I still needed to do some normalization:
 -   We needed to normalize team names. Sometimes team initials are used, and other times full names are used. I wanted both. I used this data to build a complete reference file in Google Sheets and the re-updated the data with that. I also consulted [usfootballr](https://usfootballr.sportsdataverse.org/index.html) for how names and abbreviations were used in hopes of joining with data from that package.
 -   I wanted to add conference affiliations, which I did manually in the Google Sheet reference.
 -   I normalized positions with preference for letter designations using hyphens for multi-position players.
+
+### When new data comes out
+
+- Save the PDF and csv to the project. Sometimes they differe.
+- **If it is a new season**, update the Clubs List Google Sheet is here: [rws-mls-salaries](https://docs.google.com/spreadsheets/d/1rH1pbOZYAv_ep4iCihzqrzOYBTreV2oJ014Un4TgEjw/edit?usp=sharing)
+- Download the clubs list (in Building Short Club Names section)
+- Add a section to import based on previous years, then add to the merge
+- Check the Clean positions section for new positions to convert
+- Make sure it all works!
 
 ### Things to do
 
@@ -300,13 +310,36 @@ s2025_imported <- read_csv(
 s2025_imported |> glimpse()
 ```
 
+### 2026 data
+
+This is the Spring release from May 12, 2026.
+
+```{r}
+s2026_imported <- read_csv(
+  "data-original/2026-mlsplayers-spring.csv",
+  skip = 1,
+  col_names = c(
+    "first_name",
+    "last_name",
+    "club_long",
+    "position",
+    "base_salary",
+    "guaranteed_compensation"
+    )
+  ) |> 
+  add_column(year = "2026", .before = "first_name") |> 
+  mutate(across(base_salary:guaranteed_compensation, parse_number))
+
+s2026_imported |> glimpse()
+```
+
 ## Merge non-dip data
 
 The tabula and excel data both use long club names, so I'll put those together.
 
 ```{r}
 non_dip_data <- s2018_imported |> 
-  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported, s2024_imported, s2025_imported)
+  bind_rows(s2019_imported, s2020_imported, s2021_imported, s2022_imported, s2023_imported, s2024_imported, s2025_imported, s2026_imported)
 
 non_dip_data |> glimpse()
 ```
@@ -364,7 +397,7 @@ non_dip_cleaned <- non_dip_changed |>
 non_dip_cleaned |> glimpse()
 ```
 
-## Building both names
+## Building short club names
 
 I'd like to have `club_long` and `club_short` for each row of data, but to do that I need to build a conversion chart of some kind.
 
@@ -374,7 +407,7 @@ How I tackled this:
 
 -   Get a list of all the short names
 -   Get a list of all the long names
--   Add them both to a Google Sheet and match them manually
+-   Add them both to a [Google Sheet](https://docs.google.com/spreadsheets/d/1rH1pbOZYAv_ep4iCihzqrzOYBTreV2oJ014Un4TgEjw/edit?usp=sharing) and match them manually
 -   Download that sheet and then use joins to fill gaps
 
 I used the following to get the names, though just to copy into a spreadsheet for a lot of manual research and work.
@@ -393,11 +426,11 @@ clubs_long <- non_dip_data |> distinct(year, club_long) |>
 
 ### Downloading in the spreadsheet
 
-The edited Google Sheet is here: [rws-mls-salaries](https://docs.google.com/spreadsheets/d/1rH1pbOZYAv_ep4iCihzqrzOYBTreV2oJ014Un4TgEjw/edit?usp=sharing)
-
 Download the clubs list. Commented out after saved locally. Then viewed club names to verify/check them.
 
 ```{r}
+# Might need to re-download the clubs list if it has been updated.
+
 # download.file("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqXJxbbrBsikirZrGyXYV_G6cFZp_dYmcf52UfSYM7Kw3akGlkO5jKP8ZL8WtRA5qUJgFMNPG8JYov/pub?output=csv", "data-processed/clubs-list.csv")
 
 clubs_list <- read_csv("data-processed/clubs-list.csv") |> 
@@ -407,7 +440,7 @@ clubs_list |>
   count(club_short, club_long)
 ```
 
-#### Fill in our DIP
+### Fill in our DIP
 
 The DIP data doesn't have club_long. We'll join with our master clubs list to get them.
 
@@ -427,7 +460,7 @@ dip_full |>
 
 These players are not attached to teams.
 
-#### Fill in non-dip
+### Fill in non-dip
 
 The non-DIP data doesn't have the short name, so we join with clubs_list reference file for them.
 
@@ -503,6 +536,7 @@ positions <- binded |>
       "F/M" ~ "M-F",
       # "NA" ~ "",
       "Attacking Midfield" ~ "M-F",
+      "Center Forward/Attacking Midfielder" ~ "M-F",
       "Center-back" ~ "D",
       "Center-Back" ~ "D",
       "Center Forward" ~ "F",
