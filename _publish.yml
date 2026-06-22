@@ -2,3 +2,6 @@
   quarto-pub:
     - id: 5a393ca0-e540-4d72-ac32-6a32dc3b4c8b
       url: https://christianmcdonald.quarto.pub/mls-salaries
+  posit-connect-cloud:
+    - id: 019e2369-694b-a76f-d188-6f14ab88dd1d
+      url: https://connect.posit.cloud/christianmcdonald/content/019e2369-694b-a76f-d188-6f14ab88dd1d
